@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPainter>
+#include <QColor>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,7 +17,14 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    virtual void paintEvent(QPaintEvent* event);
+
 private:
     Ui::MainWindow *ui;
+
+    void drawBoard();
+
+    const QColor lightSquare;
+    const QColor darkSquare;
 };
 #endif // MAINWINDOW_H
