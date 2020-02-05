@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QPainter>
 #include <QColor>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,8 +24,13 @@ private:
     Ui::MainWindow *ui;
 
     void drawBoard();
+    void drawPieces();
 
     const QColor lightSquare;
     const QColor darkSquare;
+    const QColor p1Colour;
+    const QColor p2Colour;
+    QVector<QVector<std::pair<QRect, int>>> board;
+    QSize windowSize;
 };
 #endif // MAINWINDOW_H
