@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     , darkSquare(QColor(153, 102, 51))
     , p1Colour(Qt::red)
     , p2Colour(Qt::black)
+    , selectedPiece(nullptr)
 {
     // set board dimensions to 8x8
     board.resize(8);
@@ -95,3 +96,35 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
+std::pair<QRect, int>* MainWindow::findSquare(QPoint pos) {
+    for(auto& column : board) {
+        for(auto& square : column) {
+            if(square.first.contains(pos))
+                return &square;
+        }
+    }
+
+    return nullptr;
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
+    if(!(event->button() & Qt::LeftButton))
+        return;
+
+    if(!selectedPiece) {
+        auto square = findSquare(event->pos());
+        if(square && square->second != empty) {
+            selectedPiece = square;
+            return;
+        }
+    } else {
+        auto square = findSquare(event->pos());
+        if(square && square->second == empty) {
+            square->second = selectedPiece->second;
+            square->first = selectedPiece->first;
+            selectedPiece->second = empty;
+            selectedPiece = nullptr;
+            return;
+        }
+    }
+}

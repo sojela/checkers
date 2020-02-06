@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QColor>
 #include <QVector>
+#include <QMouseEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -18,11 +19,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    virtual void paintEvent(QPaintEvent* event);
-
 private:
     Ui::MainWindow *ui;
 
+    virtual void paintEvent(QPaintEvent* event);
+    std::pair<QRect, int>* findSquare(QPoint pos);
+    void mouseReleaseEvent(QMouseEvent* event);
     void drawBoard();
     void drawPieces();
 
@@ -32,5 +34,6 @@ private:
     const QColor p2Colour;
     QVector<QVector<std::pair<QRect, int>>> board;
     QSize windowSize;
+    std::pair<QRect, int>* selectedPiece;
 };
 #endif // MAINWINDOW_H
