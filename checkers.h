@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef CHECKERS_H
+#define CHECKERS_H
 
 #include <QMainWindow>
 #include <QPainter>
@@ -8,19 +8,19 @@
 #include <QMouseEvent>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui { class Checkers; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+class Checkers : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    Checkers(QWidget *parent = nullptr);
+    ~Checkers();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::Checkers *ui;
 
     virtual void paintEvent(QPaintEvent* event);
     std::pair<QRect, int>* findSquare(QPoint pos);
@@ -36,4 +36,4 @@ private:
     QSize windowSize;
     std::pair<QRect, int>* selectedPiece;
 };
-#endif // MAINWINDOW_H
+#endif // CHECKERS_H

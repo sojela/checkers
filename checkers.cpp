@@ -1,11 +1,11 @@
-#include "mainwindow.h"
-#include "./ui_mainwindow.h"
+#include "checkers.h"
+#include "ui_checkers.h"
 
 enum {empty = 0, player1Piece = 1, player2Piece = 2};
 
-MainWindow::MainWindow(QWidget *parent)
+Checkers::Checkers(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::Checkers)
     , lightSquare(QColor(245, 199, 72))
     , darkSquare(QColor(153, 102, 51))
     , p1Colour(Qt::red)
@@ -32,12 +32,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 }
 
-void MainWindow::paintEvent(QPaintEvent* event) {
+void Checkers::paintEvent(QPaintEvent* event) {
     drawBoard();
     drawPieces();
 }
 
-void MainWindow::drawBoard() {
+void Checkers::drawBoard() {
     QPainter painter(this);
     painter.setPen(Qt::NoPen);
     QSize currentWindowSize = this->size();
@@ -65,7 +65,7 @@ void MainWindow::drawBoard() {
     }
 }
 
-void MainWindow::drawPieces() {
+void Checkers::drawPieces() {
     QPainter painter(this);
     painter.setPen(Qt::NoPen);
     QBrush brush {Qt::SolidPattern};
@@ -92,11 +92,7 @@ void MainWindow::drawPieces() {
     }
 }
 
-MainWindow::~MainWindow() {
-    delete ui;
-}
-
-std::pair<QRect, int>* MainWindow::findSquare(QPoint pos) {
+std::pair<QRect, int>* Checkers::findSquare(QPoint pos) {
     for(auto& column : board) {
         for(auto& square : column) {
             if(square.first.contains(pos))
@@ -107,7 +103,7 @@ std::pair<QRect, int>* MainWindow::findSquare(QPoint pos) {
     return nullptr;
 }
 
-void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
+void Checkers::mouseReleaseEvent(QMouseEvent* event) {
     if(!(event->button() & Qt::LeftButton))
         return;
 
@@ -127,4 +123,9 @@ void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
             return;
         }
     }
+}
+
+Checkers::~Checkers()
+{
+    delete ui;
 }
