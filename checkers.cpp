@@ -104,7 +104,7 @@ std::pair<QRect, int>* Checkers::findSquare(QPoint pos) {
 }
 
 void Checkers::mouseReleaseEvent(QMouseEvent* event) {
-    if(!(event->button() & Qt::LeftButton))
+    if(event->button() != Qt::LeftButton)
         return;
 
     if(!selectedPiece) {
