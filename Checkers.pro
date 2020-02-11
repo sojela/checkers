@@ -16,11 +16,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    main.cpp \
-    checkers.cpp
+    checkers.cpp \
+    checkerspiece.cpp \
+    checkerssquare.cpp \
+    checkersview.cpp \
+    main.cpp
 
 HEADERS += \
-    checkers.h
+    checkers.h \
+    checkerspiece.h \
+    checkerssquare.h \
+    checkersview.h
 
 FORMS += \
     checkers.ui

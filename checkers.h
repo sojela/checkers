@@ -1,11 +1,15 @@
 #ifndef CHECKERS_H
 #define CHECKERS_H
 
+#include "checkerssquare.h"
+#include "checkersview.h"
+#include "checkerspiece.h"
+
 #include <QMainWindow>
-#include <QPainter>
-#include <QColor>
 #include <QVector>
-#include <QMouseEvent>
+#include <QGraphicsScene>
+#include <QTimer>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Checkers; }
@@ -18,22 +22,25 @@ class Checkers : public QMainWindow
 public:
     Checkers(QWidget *parent = nullptr);
     ~Checkers();
+    void selectPiece(QPointF center);
+    void movePiece(QPointF center);
+
+private slots:
+    void drawBoard();
 
 private:
     Ui::Checkers *ui;
-
-    virtual void paintEvent(QPaintEvent* event);
-    std::pair<QRect, int>* findSquare(QPoint pos);
-    void mouseReleaseEvent(QMouseEvent* event);
-    void drawBoard();
-    void drawPieces();
-
-    const QColor lightSquare;
-    const QColor darkSquare;
-    const QColor p1Colour;
-    const QColor p2Colour;
-    QVector<QVector<std::pair<QRect, int>>> board;
-    QSize windowSize;
-    std::pair<QRect, int>* selectedPiece;
+    const int board_length;
+    const QColor light_square;
+    const QColor dark_square;
+    const QColor player_1_colour;
+    const QColor player_2_colour;
+    const qreal squareZHeight;
+    const qreal pieceZHeight;
+    QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>> board;
+    std::pair<int, int> selectedPiece;
+    QGraphicsScene scene;
+    CheckersView view;
+    QTimer* timer;
 };
 #endif // CHECKERS_H
