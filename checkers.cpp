@@ -12,6 +12,7 @@ Checkers::Checkers(QWidget *parent)
     , squareZHeight(0)
     , pieceZHeight(1)
     , selectedPiece(-1, -1)
+    , pieceSelected(false)
 {
     // set board dimensions
     board.resize(board_length);
@@ -92,22 +93,33 @@ void Checkers::updateBoard() {
         }
 }
 
-void Checkers::selectPiece(QPointF center) {
-    if(selectedPiece.first >= 0)
-        return;
-
+std::pair<int, int> Checkers::findPiece(QPointF center) {
     for(int i = 0; i < board_length; ++i) {
         for(int j = 0; j < board_length; ++j) {
-            if(board[i][j].first->boundingRect().center() == center) {
-                selectedPiece = {i, j};
-                return;
-            }
+            if(!board[i][j].second)
+                continue;
+
+            if(board[i][j].first->boundingRect().center() == center)
+                return {i, j};
         }
+    }
+
+    return {-1, -1};
+}
+
+void Checkers::selectPiece(QPointF center) {
+    if(pieceSelected)
+        return;
+
+    auto pos = findPiece(center);
+    if(pos.first >= 0) {
+        selectedPiece = pos;
+        pieceSelected = true;
     }
 }
 
 void Checkers::movePiece(QPointF center) {
-    if(selectedPiece.first < 0)
+    if(!pieceSelected)
         return;
 
     for(int i = 0; i < board_length; ++i) {
@@ -116,7 +128,7 @@ void Checkers::movePiece(QPointF center) {
                 if(!board[i][j].second) {
                     board[i][j].second = board[selectedPiece.first][selectedPiece.second].second;
                     board[selectedPiece.first][selectedPiece.second].second = nullptr;
-                    selectedPiece = {-1, -1};
+                    pieceSelected = false;
                     updateBoard();
                 }
                 return;

@@ -26,6 +26,8 @@ public:
     void updateBoard();
 
 private:
+    std::pair<int, int> findPiece(QPointF center);
+
     Ui::Checkers *ui;
     const int board_length;
     const QColor light_square;
@@ -36,6 +38,7 @@ private:
     const qreal pieceZHeight;
     QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>> board;
     std::pair<int, int> selectedPiece;
+    bool pieceSelected;
     QGraphicsScene scene;
     CheckersView view;
 };
