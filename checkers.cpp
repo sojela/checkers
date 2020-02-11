@@ -51,14 +51,9 @@ Checkers::Checkers(QWidget *parent)
     view.setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     view.setScene(&scene);
     view.show();
-
-    timer = new QTimer(this);
-    timer->setInterval(10);
-    connect(timer, &QTimer::timeout, this, &Checkers::drawBoard);
-    timer->start();
 }
 
-void Checkers::drawBoard() {
+void Checkers::updateBoard() {
     double fractionOfWindowToUse = 0.75;
     int boardLength = std::min(scene.height(), scene.width()) * fractionOfWindowToUse;
     int startx = (scene.width() - boardLength) / 2;
@@ -122,6 +117,7 @@ void Checkers::movePiece(QPointF center) {
                     board[i][j].second = board[selectedPiece.first][selectedPiece.second].second;
                     board[selectedPiece.first][selectedPiece.second].second = nullptr;
                     selectedPiece = {-1, -1};
+                    updateBoard();
                 }
                 return;
             }
@@ -129,8 +125,6 @@ void Checkers::movePiece(QPointF center) {
     }
 }
 
-Checkers::~Checkers()
-{
+Checkers::~Checkers() {
     delete ui;
-    delete timer;
 }

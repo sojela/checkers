@@ -8,7 +8,6 @@
 #include <QMainWindow>
 #include <QVector>
 #include <QGraphicsScene>
-#include <QTimer>
 
 
 QT_BEGIN_NAMESPACE
@@ -24,9 +23,7 @@ public:
     ~Checkers();
     void selectPiece(QPointF center);
     void movePiece(QPointF center);
-
-private slots:
-    void drawBoard();
+    void updateBoard();
 
 private:
     Ui::Checkers *ui;
@@ -41,6 +38,5 @@ private:
     std::pair<int, int> selectedPiece;
     QGraphicsScene scene;
     CheckersView view;
-    QTimer* timer;
 };
 #endif // CHECKERS_H
