@@ -31,7 +31,9 @@ private:
     Ui::Checkers *ui;
     const int board_length;
     const QColor light_square;
+    const QColor light_square_highlight;
     const QColor dark_square;
+    const QColor dark_square_highlight;
     const QColor player_1_colour;
     const QColor player_2_colour;
     const qreal squareZHeight;

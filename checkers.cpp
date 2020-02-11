@@ -6,7 +6,9 @@ Checkers::Checkers(QWidget *parent)
     , ui(new Ui::Checkers)
     , board_length(8)
     , light_square(245, 199, 72)
+    , light_square_highlight(245, 209, 111)
     , dark_square(153, 102, 51)
+    , dark_square_highlight(153, 119, 93)
     , player_1_colour(Qt::red)
     , player_2_colour(Qt::black)
     , squareZHeight(0)
@@ -70,10 +72,17 @@ void Checkers::updateBoard() {
 
             currentSquare->setZValue(squareZHeight);
 
-            if((i + j) % 2)
-                currentSquare->setBrush(dark_square);
-            else
-                currentSquare->setBrush(light_square);
+            if((i + j) % 2) {
+                if(pieceSelected && currentSquare->boundingRect().center() == board[selectedPiece.first][selectedPiece.second].first->boundingRect().center())
+                    currentSquare->setBrush(dark_square_highlight);
+                else
+                    currentSquare->setBrush(dark_square);
+            } else {
+                if(pieceSelected && currentSquare->boundingRect().center() == board[selectedPiece.first][selectedPiece.second].first->boundingRect().center())
+                    currentSquare->setBrush(light_square_highlight);
+                else
+                    currentSquare->setBrush(light_square);
+            }
 
             if(board[i][j].second) {
                 auto currentPiece = board[i][j].second;
@@ -109,8 +118,10 @@ std::pair<int, int> Checkers::findPiece(QPointF center) {
 
 void Checkers::selectPiece(QPointF center) {
     if(pieceSelected) {
-        if(board[selectedPiece.first][selectedPiece.second].second->boundingRect().center() == center)
+        if(board[selectedPiece.first][selectedPiece.second].second->boundingRect().center() == center) {
             pieceSelected = false;
+            updateBoard();
+        }
         return;
     }
 
@@ -118,6 +129,7 @@ void Checkers::selectPiece(QPointF center) {
     if(pos.first >= 0) {
         selectedPiece = pos;
         pieceSelected = true;
+        updateBoard();
     }
 }
 
