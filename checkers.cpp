@@ -108,8 +108,11 @@ std::pair<int, int> Checkers::findPiece(QPointF center) {
 }
 
 void Checkers::selectPiece(QPointF center) {
-    if(pieceSelected)
+    if(pieceSelected) {
+        if(board[selectedPiece.first][selectedPiece.second].second->boundingRect().center() == center)
+            pieceSelected = false;
         return;
+    }
 
     auto pos = findPiece(center);
     if(pos.first >= 0) {
