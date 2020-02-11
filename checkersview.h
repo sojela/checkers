@@ -4,8 +4,6 @@
 #include <QGraphicsView>
 
 class CheckersView : public QGraphicsView {
-public:
-    CheckersView();
 protected:
     void resizeEvent(QResizeEvent* event);
 };
