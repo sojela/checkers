@@ -15,6 +15,7 @@ Checkers::Checkers(QWidget *parent)
     , pieceZHeight(1)
     , selectedPiece(-1, -1)
     , pieceSelected(false)
+    , player1Turn(true)
 {
     // set board dimensions
     board.resize(board_length);
@@ -137,6 +138,11 @@ void Checkers::movePiece(QPointF center) {
                     board[selectedPiece.first][selectedPiece.second].second = nullptr;
                     pieceSelected = false;
                     updateBoard();
+
+                    if(player1Turn)
+                        player1Turn = false;
+                    else
+                        player1Turn = true;
                 }
                 return;
             }

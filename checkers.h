@@ -41,6 +41,7 @@ private:
     QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>> board;
     std::pair<int, int> selectedPiece;
     bool pieceSelected;
+    bool player1Turn;
     QGraphicsScene scene;
     CheckersView view;
 };
