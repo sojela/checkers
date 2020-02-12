@@ -29,6 +29,10 @@ private:
     std::pair<int, int> findPiece(QPointF center);
     bool isValid(std::pair<int, int> start, std::pair<int, int> destination);
     bool isCurrentPlayersPiece(std::pair<int, int> pos);
+    bool moveForwards(std::pair<int, int> start, std::pair<int, int> destination);
+    bool moveBackwards(std::pair<int, int> start, std::pair<int, int> destination);
+    bool captureForwards(std::pair<int, int> start, std::pair<int, int> destination);
+    bool captureBackwards(std::pair<int, int> start, std::pair<int, int> destination);
 
     Ui::Checkers *ui;
     const int board_length;
