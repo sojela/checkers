@@ -117,14 +117,6 @@ std::pair<int, int> Checkers::findPiece(QPointF center) {
 }
 
 void Checkers::selectPiece(QPointF center) {
-    if(pieceSelected) {
-        if(board[selectedPiece.first][selectedPiece.second].second->boundingRect().center() == center) {
-            pieceSelected = false;
-            updateBoard();
-        }
-        return;
-    }
-
     auto pos = findPiece(center);
     if(pos.first >= 0) {
         selectedPiece = pos;
