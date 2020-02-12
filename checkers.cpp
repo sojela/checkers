@@ -117,9 +117,26 @@ std::pair<int, int> Checkers::findPiece(QPointF center) {
     return {-1, -1};
 }
 
+bool Checkers::isCurrentPlayersPiece(std::pair<int, int> pos) {
+    if(player1Turn) {
+        if(board[pos.first][pos.second].second->typeOfPiece == player1Piece ||
+                board[pos.first][pos.second].second->typeOfPiece == player1KingPiece)
+            return true;
+    } else {
+        if(board[pos.first][pos.second].second->typeOfPiece == player2Piece ||
+                board[pos.first][pos.second].second->typeOfPiece == player2KingPiece)
+            return true;
+    }
+
+    return false;
+}
+
 void Checkers::selectPiece(QPointF center) {
     auto pos = findPiece(center);
     if(pos.first >= 0) {
+        if(!isCurrentPlayersPiece(pos))
+            return;
+
         selectedPiece = pos;
         pieceSelected = true;
         updateBoard();
@@ -159,17 +176,10 @@ bool Checkers::isValid(std::pair<int, int> start, std::pair<int, int> destinatio
     if(board[destination.first][destination.second].second)
         return false;
 
-    if(player1Turn) {
-        if(!(board[start.first][start.second].second->typeOfPiece == player1Piece ||
-                board[start.first][start.second].second->typeOfPiece == player1KingPiece))
-            return false;
-    } else {
-        if(!(board[start.first][start.second].second->typeOfPiece == player2Piece ||
-                board[start.first][start.second].second->typeOfPiece == player2KingPiece))
-            return false;
-    }
+    if(isCurrentPlayersPiece(start))
+        return true;
 
-    return true;
+    return false;
 }
 
 Checkers::~Checkers() {

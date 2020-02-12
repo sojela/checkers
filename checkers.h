@@ -28,6 +28,7 @@ public:
 private:
     std::pair<int, int> findPiece(QPointF center);
     bool isValid(std::pair<int, int> start, std::pair<int, int> destination);
+    bool isCurrentPlayersPiece(std::pair<int, int> pos);
 
     Ui::Checkers *ui;
     const int board_length;
