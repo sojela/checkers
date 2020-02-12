@@ -92,6 +92,11 @@ void Checkers::updateBoard() {
             if(board[i][j].second) {
                 auto currentPiece = board[i][j].second;
 
+                if(j == 0 && currentPiece->typeOfPiece == player1Piece)
+                    currentPiece->typeOfPiece = player1KingPiece;
+                else if(j == 7 && currentPiece->typeOfPiece == player2Piece)
+                    currentPiece->typeOfPiece = player2KingPiece;
+
                 QRectF boundingRect {0, 0, pieceDiameter, pieceDiameter};
                 boundingRect.moveCenter(board[i][j].first->boundingRect().center());
 
