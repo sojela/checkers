@@ -9,8 +9,10 @@ Checkers::Checkers(QWidget *parent)
     , light_square_highlight(245, 209, 111)
     , dark_square(153, 102, 51)
     , dark_square_highlight(153, 119, 93)
-    , player_1_colour(Qt::red)
-    , player_2_colour(Qt::black)
+    , player_1_colour_regular(Qt::red)
+    , player_1_colour_king(Qt::darkRed)
+    , player_2_colour_regular(Qt::black)
+    , player_2_colour_king(Qt::darkGray)
     , squareZHeight(0)
     , pieceZHeight(1)
     , selectedPiece(-1, -1)
@@ -95,10 +97,20 @@ void Checkers::updateBoard() {
                 currentPiece->setRect(boundingRect);
                 currentPiece->setPen(Qt::NoPen);
 
-                if(currentPiece->typeOfPiece == player1Piece || currentPiece->typeOfPiece == player1KingPiece)
-                    currentPiece->setBrush(player_1_colour);
-                else if(currentPiece->typeOfPiece == player2Piece || currentPiece->typeOfPiece == player2KingPiece)
-                    currentPiece->setBrush(player_2_colour);
+                switch (currentPiece->typeOfPiece) {
+                    case player1Piece:
+                        currentPiece->setBrush(player_1_colour_regular);
+                        break;
+                    case player1KingPiece:
+                        currentPiece->setBrush(player_1_colour_king);
+                        break;
+                    case player2Piece:
+                        currentPiece->setBrush(player_2_colour_regular);
+                        break;
+                    case player2KingPiece:
+                        currentPiece->setBrush(player_2_colour_king);
+                        break;
+                }
             }
         }
 }

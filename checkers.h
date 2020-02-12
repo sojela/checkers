@@ -36,8 +36,10 @@ private:
     const QColor light_square_highlight;
     const QColor dark_square;
     const QColor dark_square_highlight;
-    const QColor player_1_colour;
-    const QColor player_2_colour;
+    const QColor player_1_colour_regular;
+    const QColor player_1_colour_king;
+    const QColor player_2_colour_regular;
+    const QColor player_2_colour_king;
     const qreal squareZHeight;
     const qreal pieceZHeight;
     QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>> board;
