@@ -165,7 +165,13 @@ void Checkers::movePiece(QPointF center) {
                 if(isValid(selectedPiece, {i, j})) {
                     board[i][j].second = board[selectedPiece.first][selectedPiece.second].second;
                     board[selectedPiece.first][selectedPiece.second].second = nullptr;
+
+                    for(auto& pos : captured)
+                        board[pos.first][pos.second].second = nullptr;
+                    captured.clear();
+
                     pieceSelected = false;
+
                     updateBoard();
 
                     if(player1Turn)
@@ -196,12 +202,84 @@ bool Checkers::isValid(std::pair<int, int> start, std::pair<int, int> destinatio
             return true;
 
         if(board[start.first][start.second].second->typeOfPiece == player1KingPiece) {
+            if(destination.second - start.second == 2 && abs(destination.first - start.first) == 2) {
+                std::pair<int, int> enemyPos;
+                if(destination.first > start.first)
+                    enemyPos = {start.first + 1, start.second + 1};
+                else
+                    enemyPos = {start.first - 1, start.second + 1};
+
+                if(!board[enemyPos.first][enemyPos.second].second)
+                    // no enemy piece
+                    return false;
+
+                if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
+                    captured.push_back(enemyPos);
+                    return true;
+                }
+            }
+        }
+
+        if(start.second - destination.second == 2 && abs(destination.first - start.first) == 2) {
+            std::pair<int, int> enemyPos;
+            if(destination.first > start.first)
+                enemyPos = {start.first + 1, start.second - 1};
+            else
+                enemyPos = {start.first - 1, start.second - 1};
+
+            if(!board[enemyPos.first][enemyPos.second].second)
+                // no enemy piece
+                return false;
+
+            if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
+                captured.push_back(enemyPos);
+                return true;
+            }
+        }
+
+        if(board[start.first][start.second].second->typeOfPiece == player1KingPiece) {
             if(destination.second - start.second == 1 && abs(destination.first - start.first) == 1)
                 return true;
         }
     } else {
         if(destination.second - start.second == 1 && abs(destination.first - start.first) == 1)
             return true;
+
+        if(board[start.first][start.second].second->typeOfPiece == player2KingPiece) {
+            if(start.second - destination.second == 2 && abs(destination.first - start.first) == 2) {
+                std::pair<int, int> enemyPos;
+                if(destination.first > start.first)
+                    enemyPos = {start.first + 1, start.second - 1};
+                else
+                    enemyPos = {start.first - 1, start.second - 1};
+
+                if(!board[enemyPos.first][enemyPos.second].second)
+                    // no enemy piece
+                    return false;
+
+                if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
+                    captured.push_back(enemyPos);
+                    return true;
+                }
+            }
+        }
+
+        if(destination.second - start.second == 2 && abs(destination.first - start.first) == 2) {
+            std::pair<int, int> enemyPos;
+            if(destination.first > start.first)
+                enemyPos = {start.first + 1, start.second + 1};
+            else
+                enemyPos = {start.first - 1, start.second + 1};
+
+            if(!board[enemyPos.first][enemyPos.second].second)
+                // no enemy piece
+                return false;
+
+            if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
+                captured.push_back(enemyPos);
+                return true;
+            }
+        }
 
         if(board[start.first][start.second].second->typeOfPiece == player2KingPiece) {
             if(start.second - destination.second == 1 && abs(destination.first - start.first) == 1)

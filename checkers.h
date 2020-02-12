@@ -43,6 +43,7 @@ private:
     const qreal squareZHeight;
     const qreal pieceZHeight;
     QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>> board;
+    std::vector<std::pair<int, int>> captured;
     std::pair<int, int> selectedPiece;
     bool pieceSelected;
     bool player1Turn;
