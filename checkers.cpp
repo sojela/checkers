@@ -133,7 +133,7 @@ void Checkers::movePiece(QPointF center) {
     for(int i = 0; i < board_length; ++i) {
         for(int j = 0; j < board_length; ++j) {
             if(board[i][j].first->boundingRect().center() == center) {
-                if(!board[i][j].second) {
+                if(isValid(selectedPiece, {i, j})) {
                     board[i][j].second = board[selectedPiece.first][selectedPiece.second].second;
                     board[selectedPiece.first][selectedPiece.second].second = nullptr;
                     pieceSelected = false;
@@ -148,6 +148,28 @@ void Checkers::movePiece(QPointF center) {
             }
         }
     }
+}
+
+bool Checkers::isValid(std::pair<int, int> start, std::pair<int, int> destination) {
+    // no piece to move
+    if(!board[start.first][start.second].second)
+        return false;
+
+    // piece at destination
+    if(board[destination.first][destination.second].second)
+        return false;
+
+    if(player1Turn) {
+        if(!(board[start.first][start.second].second->typeOfPiece == player1Piece ||
+                board[start.first][start.second].second->typeOfPiece == player1KingPiece))
+            return false;
+    } else {
+        if(!(board[start.first][start.second].second->typeOfPiece == player2Piece ||
+                board[start.first][start.second].second->typeOfPiece == player2KingPiece))
+            return false;
+    }
+
+    return true;
 }
 
 Checkers::~Checkers() {
