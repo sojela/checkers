@@ -176,8 +176,26 @@ bool Checkers::isValid(std::pair<int, int> start, std::pair<int, int> destinatio
     if(board[destination.first][destination.second].second)
         return false;
 
-    if(isCurrentPlayersPiece(start))
-        return true;
+    if(!isCurrentPlayersPiece(start))
+        return false;
+
+    if(player1Turn) {
+        if(start.second - destination.second == 1 && abs(destination.first - start.first) == 1)
+            return true;
+
+        if(board[start.first][start.second].second->typeOfPiece == player1KingPiece) {
+            if(destination.second - start.second == 1 && abs(destination.first - start.first) == 1)
+                return true;
+        }
+    } else {
+        if(destination.second - start.second == 1 && abs(destination.first - start.first) == 1)
+            return true;
+
+        if(board[start.first][start.second].second->typeOfPiece == player2KingPiece) {
+            if(start.second - destination.second == 1 && abs(destination.first - start.first) == 1)
+                return true;
+        }
+    }
 
     return false;
 }
