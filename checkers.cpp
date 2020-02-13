@@ -150,6 +150,9 @@ bool Checkers::isCurrentPlayersPiece(std::pair<int, int> pos) {
 }
 
 void Checkers::selectPiece(QPointF center) {
+    if(hasCapturedThisTurn)
+        return;
+
     auto pos = findPiece(center);
     if(pos.first >= 0) {
         if(!isCurrentPlayersPiece(pos))
@@ -159,6 +162,31 @@ void Checkers::selectPiece(QPointF center) {
         pieceSelected = true;
         updateBoard();
     }
+}
+
+bool Checkers::canCapture(std::pair<int, int> pos) {
+    std::pair<int, int> upLeft {pos.first - 2, pos.second - 2};
+    std::pair<int, int> upRight {pos.first + 2, pos.second - 2};
+    std::pair<int, int> downLeft {pos.first - 2, pos.second + 2};
+    std::pair<int, int> downRight {pos.first + 2, pos.second + 2};
+
+    if(upLeft.first >= 0 && upLeft.second >= 0) {
+        if(isValid(pos, upLeft)) return true;
+    }
+
+    if(upRight.first < board_length && upRight.second >= 0) {
+        if(isValid(pos, upRight)) return true;
+    }
+
+    if(downLeft.first >= 0 && downLeft.second < board_length) {
+        if(isValid(pos, downLeft)) return true;
+    }
+
+    if(downRight.first < board_length && downRight.second < board_length) {
+        if(isValid(pos, downRight)) return true;
+    }
+
+    return false;
 }
 
 void Checkers::movePiece(QPointF center) {
@@ -176,7 +204,16 @@ void Checkers::movePiece(QPointF center) {
                         board[pos.first][pos.second].second = nullptr;
                     captured.clear();
 
+                    if(abs(i - selectedPiece.first) == 2 && canCapture({i, j})) {
+                        selectedPiece = {i, j};
+                        hasCapturedThisTurn = true;
+                        updateBoard();
+                        return;
+                    }
+
                     pieceSelected = false;
+
+                    hasCapturedThisTurn = false;
 
                     updateBoard();
 
@@ -184,6 +221,7 @@ void Checkers::movePiece(QPointF center) {
                         player1Turn = false;
                     else
                         player1Turn = true;
+
                 }
                 return;
             }

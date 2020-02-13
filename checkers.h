@@ -33,6 +33,7 @@ private:
     bool moveBackwards(std::pair<int, int> start, std::pair<int, int> destination);
     bool captureForwards(std::pair<int, int> start, std::pair<int, int> destination);
     bool captureBackwards(std::pair<int, int> start, std::pair<int, int> destination);
+    bool canCapture(std::pair<int, int> pos);
 
     Ui::Checkers *ui;
     const int board_length;
@@ -51,6 +52,7 @@ private:
     std::pair<int, int> selectedPiece;
     bool pieceSelected;
     bool player1Turn;
+    bool hasCapturedThisTurn;
     QGraphicsScene scene;
     CheckersView view;
 };
