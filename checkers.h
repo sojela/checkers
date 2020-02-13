@@ -38,7 +38,6 @@ private:
     Ui::Checkers *ui;
     const int board_length;
     const QColor light_square;
-    const QColor light_square_highlight;
     const QColor dark_square;
     const QColor dark_square_highlight;
     const QColor player_1_colour_regular;
@@ -48,7 +47,7 @@ private:
     const qreal squareZHeight;
     const qreal pieceZHeight;
     QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>> board;
-    std::vector<std::pair<int, int>> captured;
+    std::pair<int, int> captured;
     std::pair<int, int> selectedPiece;
     bool pieceSelected;
     bool player1Turn;

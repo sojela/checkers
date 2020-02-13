@@ -6,7 +6,6 @@ Checkers::Checkers(QWidget *parent)
     , ui(new Ui::Checkers)
     , board_length(8)
     , light_square(245, 199, 72)
-    , light_square_highlight(245, 209, 111)
     , dark_square(153, 102, 51)
     , dark_square_highlight(153, 119, 93)
     , player_1_colour_regular(Qt::red)
@@ -82,12 +81,8 @@ void Checkers::updateBoard() {
                     currentSquare->setBrush(dark_square_highlight);
                 else
                     currentSquare->setBrush(dark_square);
-            } else {
-                if(pieceSelected && currentSquare->boundingRect().center() == board[selectedPiece.first][selectedPiece.second].first->boundingRect().center())
-                    currentSquare->setBrush(light_square_highlight);
-                else
-                    currentSquare->setBrush(light_square);
-            }
+            } else
+                currentSquare->setBrush(light_square);
 
             if(board[i][j].second) {
                 auto currentPiece = board[i][j].second;
@@ -200,9 +195,9 @@ void Checkers::movePiece(QPointF center) {
                     board[i][j].second = board[selectedPiece.first][selectedPiece.second].second;
                     board[selectedPiece.first][selectedPiece.second].second = nullptr;
 
-                    for(auto& pos : captured)
-                        board[pos.first][pos.second].second = nullptr;
-                    captured.clear();
+                    if(captured.first >= 0)
+                        board[captured.first][captured.second].second = nullptr;
+                    captured = {-1, -1};
 
                     if(abs(i - selectedPiece.first) == 2 && canCapture({i, j})) {
                         selectedPiece = {i, j};
@@ -269,7 +264,7 @@ bool Checkers::captureForwards(std::pair<int, int> start, std::pair<int, int> de
                 return false;
 
             if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
-                captured.push_back(enemyPos);
+                captured = {enemyPos.first, enemyPos.second};
                 return true;
             }
         }
@@ -286,7 +281,7 @@ bool Checkers::captureForwards(std::pair<int, int> start, std::pair<int, int> de
                 return false;
 
             if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
-                captured.push_back(enemyPos);
+                captured = {enemyPos.first, enemyPos.second};
                 return true;
             }
         }
@@ -310,7 +305,7 @@ bool Checkers::captureBackwards(std::pair<int, int> start, std::pair<int, int> d
                     return false;
 
                 if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
-                    captured.push_back(enemyPos);
+                    captured = {enemyPos.first, enemyPos.second};
                     return true;
                 }
             }
@@ -329,7 +324,7 @@ bool Checkers::captureBackwards(std::pair<int, int> start, std::pair<int, int> d
                     return false;
 
                 if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
-                    captured.push_back(enemyPos);
+                    captured = {enemyPos.first, enemyPos.second};
                     return true;
                 }
             }
