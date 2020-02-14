@@ -26,14 +26,18 @@ public:
     void updateBoard();
 
 private:
-    std::pair<int, int> findPiece(QPointF center);
-    bool isValid(std::pair<int, int> start, std::pair<int, int> destination);
-    bool isCurrentPlayersPiece(std::pair<int, int> pos);
-    bool moveForwards(std::pair<int, int> start, std::pair<int, int> destination);
-    bool moveBackwards(std::pair<int, int> start, std::pair<int, int> destination);
-    bool captureForwards(std::pair<int, int> start, std::pair<int, int> destination);
-    bool captureBackwards(std::pair<int, int> start, std::pair<int, int> destination);
-    bool canCapture(std::pair<int, int> pos);
+    std::pair<int, int> findPiece(QPointF center) const;
+    bool isValid(std::pair<int, int> start, std::pair<int, int> destination) const;
+    bool isCurrentPlayersPiece(std::pair<int, int> pos) const;
+    bool canMoveForwards(std::pair<int, int> start, std::pair<int, int> destination) const;
+    bool canMoveBackward(std::pair<int, int> start, std::pair<int, int> destination) const;
+    bool canCaptureForwards(std::pair<int, int> start, std::pair<int, int> destination) const;
+    bool canCaptureBackwards(std::pair<int, int> start, std::pair<int, int> destination) const;
+    bool canCapture(std::pair<int, int> pos) const;
+    bool isMoveable(std::shared_ptr<CheckersPiece> piece) const;
+    bool canMove(std::pair<int, int> pos) const;
+    int gameOver() const;
+    void removeCapturedPiece(std::pair<int, int> start, std::pair<int, int> end);
 
     Ui::Checkers *ui;
     const int board_length;
@@ -54,5 +58,6 @@ private:
     bool hasCapturedThisTurn;
     QGraphicsScene scene;
     CheckersView view;
+    QGraphicsTextItem gameOverText;
 };
 #endif // CHECKERS_H
