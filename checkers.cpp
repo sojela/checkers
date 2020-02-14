@@ -66,6 +66,17 @@ Checkers::Checkers(QWidget *parent)
     view.setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     view.setScene(&scene);
     view.show();
+
+    QString ss("background-color: #595959; color: white;");
+    menuBar()->setStyleSheet(ss);
+
+    QAction *quit = new QAction("&Quit", this);
+
+    QMenu *file;
+    file = menuBar()->addMenu("&File");
+    file->addAction(quit);
+
+    connect(quit, &QAction::triggered, qApp, QApplication::quit);
 }
 
 void Checkers::updateBoard() {
