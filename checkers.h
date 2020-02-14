@@ -48,8 +48,10 @@ private:
     const QColor player_1_colour_king;
     const QColor player_2_colour_regular;
     const QColor player_2_colour_king;
-    const qreal squareZHeight;
-    const qreal pieceZHeight;
+    const QColor background_colour;
+    const QColor text_colour;
+    const qreal square_z_height;
+    const qreal piece_z_height;
     QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>> board;
     std::pair<int, int> captured;
     std::pair<int, int> selectedPiece;

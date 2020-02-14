@@ -12,8 +12,10 @@ Checkers::Checkers(QWidget *parent)
     , player_1_colour_king(Qt::darkRed)
     , player_2_colour_regular(Qt::black)
     , player_2_colour_king(Qt::darkGray)
-    , squareZHeight(0)
-    , pieceZHeight(1)
+    , background_colour(Qt::black)
+    , text_colour(Qt::cyan)
+    , square_z_height(0)
+    , piece_z_height(1)
     , selectedPiece(-1, -1)
     , pieceSelected(false)
     , player1Turn(true)
@@ -27,7 +29,7 @@ Checkers::Checkers(QWidget *parent)
     for(auto& column : board) {
         for(auto& square : column) {
             square.first = std::shared_ptr<CheckersSquare> (new CheckersSquare);
-            square.first->setZValue(squareZHeight);
+            square.first->setZValue(square_z_height);
             scene.addItem(square.first.get());
         }
     }
@@ -48,11 +50,13 @@ Checkers::Checkers(QWidget *parent)
                 currentPiece = nullptr;
 
             if(currentPiece)
-                currentPiece->setZValue(pieceZHeight);
+                currentPiece->setZValue(piece_z_height);
         }
     }
 
     scene.addItem(&gameOverText);
+
+    scene.setBackgroundBrush(background_colour);
 
     ui->setupUi(this);
 
@@ -123,7 +127,7 @@ void Checkers::updateBoard() {
     QFont font {"Times", fontSize};
     gameOverText.setFont(font);
 
-    gameOverText.setDefaultTextColor(Qt::white);
+    gameOverText.setDefaultTextColor(background_colour);
 
     gameOverText.setPlainText("Player " + QString::number(w) + " wins!");
 
@@ -132,7 +136,7 @@ void Checkers::updateBoard() {
     gameOverText.setPos(xPos, yPos);
 
     if(w != 0) {
-        gameOverText.setDefaultTextColor(Qt::black);
+        gameOverText.setDefaultTextColor(text_colour);
     }
 }
 
