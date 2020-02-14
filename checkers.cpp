@@ -17,8 +17,6 @@ Checkers::Checkers(QWidget *parent)
     , square_z_height(0)
     , piece_z_height(1)
     , selectedPiece(-1, -1)
-    , pieceSelected(false)
-    , player1Turn(true)
 {
     // set board dimensions
     board.resize(board_length);
@@ -34,25 +32,7 @@ Checkers::Checkers(QWidget *parent)
         }
     }
 
-    // create pieces and set initial position
-    for(int i = 0; i < board_length; ++i) {
-        for(int j = 0; j < board_length; ++j) {
-            auto& currentPiece = board[i][j].second;
-            if(j < 3 && (i + j) % 2) {
-                currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
-                currentPiece->typeOfPiece = player2Piece;
-                scene.addItem(currentPiece.get());
-            } else if(j > 4 && (i + j) % 2) {
-                currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
-                currentPiece->typeOfPiece = player1Piece;
-                scene.addItem(currentPiece.get());
-            } else
-                currentPiece = nullptr;
-
-            if(currentPiece)
-                currentPiece->setZValue(piece_z_height);
-        }
-    }
+    resetBoard();
 
     scene.addItem(&gameOverText);
 
@@ -70,13 +50,17 @@ Checkers::Checkers(QWidget *parent)
     QString ss("background-color: #595959; color: white;");
     menuBar()->setStyleSheet(ss);
 
+    QAction *reset = new QAction("&Restart", this);
     QAction *quit = new QAction("&Quit", this);
 
     QMenu *file;
     file = menuBar()->addMenu("&File");
+    file->addAction(reset);
+    file->addSeparator();
     file->addAction(quit);
 
-    connect(quit, &QAction::triggered, qApp, QApplication::quit);
+    connect(reset, &QAction::triggered, this, &Checkers::resetBoard);
+    connect(quit, &QAction::triggered, this, QApplication::quit);
 }
 
 void Checkers::updateBoard() {
@@ -322,6 +306,34 @@ void Checkers::removeCapturedPiece(std::pair<int, int> start, std::pair<int, int
         captured.second = start.second - 1;
 
     board[captured.first][captured.second].second = nullptr;
+}
+
+void Checkers::resetBoard() {
+    for(int i = 0; i < board_length; ++i) {
+        for(int j = 0; j < board_length; ++j) {
+            auto& currentPiece = board[i][j].second;
+            if(j < 3 && (i + j) % 2) {
+                currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
+                currentPiece->typeOfPiece = player2Piece;
+                scene.addItem(currentPiece.get());
+            } else if(j > 4 && (i + j) % 2) {
+                currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
+                currentPiece->typeOfPiece = player1Piece;
+                scene.addItem(currentPiece.get());
+            } else
+                currentPiece = nullptr;
+
+            if(currentPiece)
+                currentPiece->setZValue(piece_z_height);
+        }
+    }
+
+    pieceSelected = false;
+    player1Turn = true;
+    hasCapturedThisTurn = false;
+    gameOverText.setDefaultTextColor(background_colour);
+
+    updateBoard();
 }
 
 void Checkers::movePiece(QPointF center) {

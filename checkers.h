@@ -25,6 +25,9 @@ public:
     void movePiece(QPointF center);
     void updateBoard();
 
+private slots:
+    void resetBoard();
+
 private:
     std::pair<int, int> findPiece(QPointF center) const;
     bool isValid(std::pair<int, int> start, std::pair<int, int> destination) const;
