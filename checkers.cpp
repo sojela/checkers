@@ -47,7 +47,9 @@ Checkers::Checkers(QWidget *parent)
     view.setScene(&scene);
     view.show();
 
-    QString ss("background-color: #595959; color: white;");
+    QString ss("background-color: #595959;"
+               "color: white;"
+               "selection-background-color: blue;");
     menuBar()->setStyleSheet(ss);
 
     QAction *reset = new QAction("&Restart", this);
