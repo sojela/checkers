@@ -1,6 +1,8 @@
 #include "checkers.h"
 #include "ui_checkers.h"
 
+#include <QMessageBox>
+
 Checkers::Checkers(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Checkers)
@@ -53,15 +55,18 @@ Checkers::Checkers(QWidget *parent)
     menuBar()->setStyleSheet(ss);
 
     QAction *reset = new QAction("&Restart", this);
+    QAction *credits = new QAction("&Credits", this);
     QAction *quit = new QAction("&Quit", this);
 
     QMenu *file;
     file = menuBar()->addMenu("&File");
     file->addAction(reset);
+    file->addAction(credits);
     file->addSeparator();
     file->addAction(quit);
 
     connect(reset, &QAction::triggered, this, &Checkers::resetBoard);
+    connect(credits, &QAction::triggered, this, &Checkers::displayCredits);
     connect(quit, &QAction::triggered, this, QApplication::quit);
 }
 
@@ -308,6 +313,15 @@ void Checkers::removeCapturedPiece(std::pair<int, int> start, std::pair<int, int
         captured.second = start.second - 1;
 
     board[captured.first][captured.second].second = nullptr;
+}
+
+void Checkers::displayCredits() {
+    QMessageBox credits;
+    credits.setTextFormat(Qt::RichText);
+    credits.setWindowTitle("Credits");
+
+    credits.setText("");
+    credits.exec();
 }
 
 void Checkers::resetBoard() {

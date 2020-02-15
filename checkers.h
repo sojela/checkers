@@ -41,6 +41,7 @@ private:
     bool canMove(std::pair<int, int> pos) const;
     int gameOver() const;
     void removeCapturedPiece(std::pair<int, int> start, std::pair<int, int> end);
+    void displayCredits();
 
     Ui::Checkers *ui;
     const int board_length;
