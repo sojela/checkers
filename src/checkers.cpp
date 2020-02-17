@@ -338,16 +338,63 @@ void Checkers::removeCapturedPiece(std::pair<int, int> start, std::pair<int, int
 }
 
 void Checkers::displayCredits() {
-    QMessageBox credits;
-    credits.setTextFormat(Qt::RichText);
-    credits.setWindowTitle("Credits");
+    QMessageBox creditsBox;
+    creditsBox.setTextFormat(Qt::RichText);
+    creditsBox.setWindowTitle("Credits");
 
-    credits.setText("<p>Sounds</p>"
-                    "<a href='https://freesound.org/people/simone_ds/sounds/366065/'>simone_ds</a> <br>"
-                    "<a href='https://freesound.org/people/qubodup/sounds/442943/'>qubodup</a> <br>"
-                    "<a href='https://freesound.org/people/Kubatko/sounds/336725/'>Kubatko</a> <br>"
-                    "<a href='https://freesound.org/people/Leszek_Szary/sounds/133283/'>Leszek_Szary</a>");
-    credits.exec();
+    QVector<QVector<QString>> soundCredits;
+
+    soundCredits.push_back({"https://freesound.org/people/simone_ds/sounds/366065/",
+                            "chess pieces.wav",
+                            "https://freesound.org/people/simone_ds/",
+                            "simone_ds",
+                            "https://creativecommons.org/publicdomain/zero/1.0/",
+                            "CC0 1.0"});
+
+    soundCredits.push_back({"https://freesound.org/people/qubodup/sounds/442943/",
+                            "Level Up",
+                            "https://freesound.org/people/qubodup/",
+                            "qubodup",
+                            "https://creativecommons.org/publicdomain/zero/1.0/",
+                            "CC0 1.0"});
+
+    soundCredits.push_back({"https://freesound.org/people/Kubatko/sounds/336725/",
+                            "Inception Horn Victory",
+                            "https://freesound.org/people/Kubatko/",
+                            "Kubatko",
+                            "https://creativecommons.org/publicdomain/zero/1.0/",
+                            "CC0 1.0"});
+
+    soundCredits.push_back({"https://freesound.org/people/Leszek_Szary/sounds/133283/",
+                            "game over",
+                            "https://freesound.org/people/Leszek_Szary/",
+                            "Leszek_Szary",
+                            "https://creativecommons.org/publicdomain/zero/1.0/",
+                            "CC0 1.0"});
+
+    QString creditsText = "<p>Created by Suraj Ojela</p>";
+
+    creditsText += "<p>Sounds</p>";
+
+    for(auto& c : soundCredits) {
+        creditsText += "<a href='"
+                + c[0]
+                + "'>\""
+                + c[1]
+                + "\"</a> by <a href='"
+                + c[2]
+                + "'>"
+                + c[3]
+                + "</a>\", licensed under <a href='"
+                + c[4]
+                + "'>"
+                + c[5]
+                + "</a> <br>";
+    }
+
+    creditsBox.setText(creditsText);
+
+    creditsBox.exec();
 }
 
 void Checkers::resetBoard() {
