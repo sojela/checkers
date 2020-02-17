@@ -19,6 +19,8 @@ Checkers::Checkers(QWidget *parent)
     , square_z_height(0)
     , piece_z_height(1)
     , selectedPiece(-1, -1)
+    , gameOverSoundPlayed(false)
+    , startFirstGame(false)
 {
     // set board dimensions
     board.resize(board_length);
@@ -33,6 +35,9 @@ Checkers::Checkers(QWidget *parent)
             scene.addItem(square.first.get());
         }
     }
+
+    kingingSound.setMedia(QUrl("qrc:/sounds/kinged.mp3"));
+    moveSound.setMedia(QUrl("qrc:/sounds/move.mp3"));
 
     resetBoard();
 
@@ -68,6 +73,8 @@ Checkers::Checkers(QWidget *parent)
     connect(reset, &QAction::triggered, this, &Checkers::resetBoard);
     connect(credits, &QAction::triggered, this, &Checkers::displayCredits);
     connect(quit, &QAction::triggered, this, QApplication::quit);
+
+    startFirstGame = true;
 }
 
 void Checkers::updateBoard() {
@@ -95,10 +102,13 @@ void Checkers::updateBoard() {
             if(board[i][j].second) {
                 auto currentPiece = board[i][j].second;
 
-                if(j == 0 && currentPiece->typeOfPiece == player1Piece)
+                if(j == 0 && currentPiece->typeOfPiece == player1Piece) {
                     currentPiece->typeOfPiece = player1KingPiece;
-                else if(j == 7 && currentPiece->typeOfPiece == player2Piece)
+                    kingingSound.play();
+                } else if(j == 7 && currentPiece->typeOfPiece == player2Piece) {
                     currentPiece->typeOfPiece = player2KingPiece;
+                    kingingSound.play();
+                }
 
                 QRectF boundingRect {0, 0, pieceDiameter, pieceDiameter};
                 boundingRect.moveCenter(board[i][j].first->boundingRect().center());
@@ -123,7 +133,7 @@ void Checkers::updateBoard() {
             }
         }
 
-    int w = gameOver();
+    int winner = gameOver();
 
     int fontSize = std::min(scene.width(), scene.height()) / 20;
     QFont font {"Times", fontSize};
@@ -131,14 +141,26 @@ void Checkers::updateBoard() {
 
     gameOverText.setDefaultTextColor(background_colour);
 
-    gameOverText.setPlainText("Player " + QString::number(w) + " wins!");
+    gameOverText.setPlainText("Player " + QString::number(winner) + " wins!");
 
     int xPos = (scene.width() / 2) - (gameOverText.boundingRect().width() / 2);
     int yPos = scene.height() * 0.9;
     gameOverText.setPos(xPos, yPos);
 
-    if(w != 0) {
+    if(winner != 0) {
         gameOverText.setDefaultTextColor(text_colour);
+        if(!gameOverSoundPlayed && startFirstGame) {
+            if(winner == 1)
+                gameOverSound.setMedia(QUrl("qrc:/sounds/victory.mp3"));
+            else
+                gameOverSound.setMedia(QUrl("qrc:/sounds/defeat.mp3"));
+
+            moveSound.stop();
+            kingingSound.stop();
+
+            gameOverSound.play();
+            gameOverSoundPlayed = true;
+        }
     }
 }
 
@@ -320,7 +342,11 @@ void Checkers::displayCredits() {
     credits.setTextFormat(Qt::RichText);
     credits.setWindowTitle("Credits");
 
-    credits.setText("");
+    credits.setText("<p>Sounds</p>"
+                    "<a href='https://freesound.org/people/simone_ds/sounds/366065/'>simone_ds</a> <br>"
+                    "<a href='https://freesound.org/people/qubodup/sounds/442943/'>qubodup</a> <br>"
+                    "<a href='https://freesound.org/people/Kubatko/sounds/336725/'>Kubatko</a> <br>"
+                    "<a href='https://freesound.org/people/Leszek_Szary/sounds/133283/'>Leszek_Szary</a>");
     credits.exec();
 }
 
@@ -347,6 +373,7 @@ void Checkers::resetBoard() {
     pieceSelected = false;
     player1Turn = true;
     hasCapturedThisTurn = false;
+    gameOverSoundPlayed = false;
     gameOverText.setDefaultTextColor(background_colour);
 
     updateBoard();
@@ -362,6 +389,8 @@ void Checkers::movePiece(QPointF center) {
                 if(isValid(selectedPiece, {i, j})) {
                     board[i][j].second = board[selectedPiece.first][selectedPiece.second].second;
                     board[selectedPiece.first][selectedPiece.second].second = nullptr;
+
+                    moveSound.play();
 
                     if(abs(i - selectedPiece.first) == 2) {
                         removeCapturedPiece(selectedPiece, {i, j});

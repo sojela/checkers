@@ -8,7 +8,7 @@
 #include <QMainWindow>
 #include <QVector>
 #include <QGraphicsScene>
-
+#include <QMediaPlayer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Checkers; }
@@ -65,5 +65,10 @@ private:
     QGraphicsScene scene;
     CheckersView view;
     QGraphicsTextItem gameOverText;
+    QMediaPlayer moveSound;
+    QMediaPlayer kingingSound;
+    QMediaPlayer gameOverSound;
+    bool gameOverSoundPlayed;
+    bool startFirstGame;
 };
 #endif // CHECKERS_H

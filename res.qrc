@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>sounds/kinged.mp3</file>
+        <file>sounds/victory.mp3</file>
+        <file>sounds/move.mp3</file>
+        <file>sounds/defeat.mp3</file>
+    </qresource>
+</RCC>
