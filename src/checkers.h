@@ -4,11 +4,14 @@
 #include "checkerssquare.h"
 #include "checkersview.h"
 #include "checkerspiece.h"
+#include "checkersai.h"
 
 #include <QMainWindow>
 #include <QVector>
 #include <QGraphicsScene>
 #include <QMediaPlayer>
+
+enum TypeOfGame {localPvP, PvAIEasy};
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Checkers; }
@@ -24,27 +27,32 @@ public:
     void selectPiece(QPointF center);
     void movePiece(QPointF center);
     void updateBoard();
+    bool isMoveable(std::shared_ptr<CheckersPiece> piece) const;
+    bool isValid(std::pair<int, int> start, std::pair<int, int> destination) const;
+
+    const int board_length;
+    bool hasCapturedThisTurn;
+    std::pair<int, int> selectedPiece;
 
 private slots:
     void resetBoard();
 
 private:
     std::pair<int, int> findPiece(QPointF center) const;
-    bool isValid(std::pair<int, int> start, std::pair<int, int> destination) const;
     bool isCurrentPlayersPiece(std::pair<int, int> pos) const;
     bool canMoveForwards(std::pair<int, int> start, std::pair<int, int> destination) const;
     bool canMoveBackward(std::pair<int, int> start, std::pair<int, int> destination) const;
     bool canCaptureForwards(std::pair<int, int> start, std::pair<int, int> destination) const;
     bool canCaptureBackwards(std::pair<int, int> start, std::pair<int, int> destination) const;
     bool canCapture(std::pair<int, int> pos) const;
-    bool isMoveable(std::shared_ptr<CheckersPiece> piece) const;
     bool canMove(std::pair<int, int> pos) const;
     int gameOver() const;
     void removeCapturedPiece(std::pair<int, int> start, std::pair<int, int> end);
     void displayCredits();
+    void endTurn();
+    void player2AI();
 
     Ui::Checkers *ui;
-    const int board_length;
     const QColor light_square;
     const QColor dark_square;
     const QColor dark_square_highlight;
@@ -58,10 +66,8 @@ private:
     const qreal piece_z_height;
     QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>> board;
     std::pair<int, int> captured;
-    std::pair<int, int> selectedPiece;
     bool pieceSelected;
     bool player1Turn;
-    bool hasCapturedThisTurn;
     QGraphicsScene scene;
     CheckersView view;
     QGraphicsTextItem gameOverText;
@@ -70,5 +76,7 @@ private:
     QMediaPlayer gameOverSound;
     bool gameOverSoundPlayed;
     bool startFirstGame;
+    TypeOfGame typeOfGame;
+    CheckersAI ai;
 };
 #endif // CHECKERS_H

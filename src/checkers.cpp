@@ -5,8 +5,8 @@
 
 Checkers::Checkers(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::Checkers)
     , board_length(8)
+    , ui(new Ui::Checkers)
     , light_square(245, 199, 72)
     , dark_square(153, 102, 51)
     , dark_square_highlight(153, 119, 93)
@@ -75,6 +75,8 @@ Checkers::Checkers(QWidget *parent)
     connect(quit, &QAction::triggered, this, QApplication::quit);
 
     startFirstGame = true;
+
+    typeOfGame = PvAIEasy;
 }
 
 void Checkers::updateBoard() {
@@ -397,6 +399,33 @@ void Checkers::displayCredits() {
     creditsBox.exec();
 }
 
+void Checkers::endTurn() {
+    hasCapturedThisTurn = false;
+
+    if(player1Turn)
+        player1Turn = false;
+    else
+        player1Turn = true;
+
+    if(!player1Turn && typeOfGame == PvAIEasy)
+        player2AI();
+}
+
+void Checkers::player2AI() {
+    if(gameOver())
+        return;
+
+    auto move = ai.calculateMove(board);
+    selectPiece(board[move.first.first][move.first.second].first->boundingRect().center());
+    movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
+
+    while(hasCapturedThisTurn) {
+        auto move = ai.calculateMove(board);
+        selectPiece(board[move.first.first][move.first.second].first->boundingRect().center());
+        movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
+    }
+}
+
 void Checkers::resetBoard() {
     for(int i = 0; i < board_length; ++i) {
         for(int j = 0; j < board_length; ++j) {
@@ -452,12 +481,7 @@ void Checkers::movePiece(QPointF center) {
 
                     pieceSelected = false;
 
-                    hasCapturedThisTurn = false;
-
-                    if(player1Turn)
-                        player1Turn = false;
-                    else
-                        player1Turn = true;
+                    endTurn();
 
                     updateBoard();
                 }
@@ -468,6 +492,9 @@ void Checkers::movePiece(QPointF center) {
 }
 
 bool Checkers::canMoveForwards(std::pair<int, int> start, std::pair<int, int> destination) const {
+    if(hasCapturedThisTurn)
+        return false;
+
     if(player1Turn) {
         if(start.second - destination.second == 1 && abs(destination.first - start.first) == 1)
             return true;
@@ -478,6 +505,9 @@ bool Checkers::canMoveForwards(std::pair<int, int> start, std::pair<int, int> de
 }
 
 bool Checkers::canMoveBackward(std::pair<int, int> start, std::pair<int, int> destination) const {
+    if(hasCapturedThisTurn)
+        return false;
+
     if(player1Turn) {
         if(board[start.first][start.second].second->typeOfPiece == player1KingPiece
             && destination.second - start.second == 1
