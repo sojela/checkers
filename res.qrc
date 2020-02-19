@@ -4,5 +4,6 @@
         <file>sounds/victory.mp3</file>
         <file>sounds/move.mp3</file>
         <file>sounds/defeat.mp3</file>
+        <file>images/checkers.png</file>
     </qresource>
 </RCC>

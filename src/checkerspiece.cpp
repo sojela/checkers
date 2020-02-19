@@ -9,5 +9,5 @@ void CheckersPiece::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if(event->button() != Qt::LeftButton)
         return;
 
-    w->selectPiece(this->boundingRect().center());
+    w->selectPiece(QPointF(this->x(), this->y()));
 }

@@ -81,5 +81,7 @@ private:
     bool gameOverSoundPlayed;
     bool startFirstGame;
     CheckersAI ai;
+    QPixmap pieceSprites;
+
 };
 #endif // CHECKERS_H

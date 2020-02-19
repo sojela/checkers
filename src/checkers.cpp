@@ -24,6 +24,7 @@ Checkers::Checkers(QWidget *parent)
     , startFirstGame(false)
     , typeOfGame(PvAI)
     , difficulty(veryEasy)
+    , pieceSprites(":/images/checkers.png")
 {
     // set board dimensions
     board.resize(board_length);
@@ -85,7 +86,7 @@ void Checkers::updateBoard() {
     int boardLength = std::min(scene.height(), scene.width()) * fractionOfWindowToUse;
     int startx = (scene.width() - boardLength) / 2;
     int starty = (scene.height() - boardLength) / 2;
-    unsigned int gridSquareLength = boardLength / board_length;
+    int gridSquareLength = boardLength / board_length;
     double pieceDiameter = gridSquareLength * 0.9;
 
     for(int i = 0; i < board_length; ++i)
@@ -107,32 +108,25 @@ void Checkers::updateBoard() {
 
                 if(j == 0 && currentPiece->typeOfPiece == player1Piece) {
                     currentPiece->typeOfPiece = player1KingPiece;
+                    QRect rect {32, 0, 32, 32};
+                    QPixmap cropped = pieceSprites.copy(rect);
+                    currentPiece->setPixmap(cropped);
                     kingingSound.play();
                 } else if(j == 7 && currentPiece->typeOfPiece == player2Piece) {
                     currentPiece->typeOfPiece = player2KingPiece;
+                    QRect rect {0, 0, 32, 32};
+                    QPixmap cropped = pieceSprites.copy(rect);
+                    currentPiece->setPixmap(cropped);
                     kingingSound.play();
                 }
 
                 QRectF boundingRect {0, 0, pieceDiameter, pieceDiameter};
                 boundingRect.moveCenter(board[i][j].first->boundingRect().center());
 
-                currentPiece->setRect(boundingRect);
-                currentPiece->setPen(Qt::NoPen);
+                currentPiece->setPos(boundingRect.x(), boundingRect.y());
 
-                switch (currentPiece->typeOfPiece) {
-                    case player1Piece:
-                        currentPiece->setBrush(player_1_colour_regular);
-                        break;
-                    case player1KingPiece:
-                        currentPiece->setBrush(player_1_colour_king);
-                        break;
-                    case player2Piece:
-                        currentPiece->setBrush(player_2_colour_regular);
-                        break;
-                    case player2KingPiece:
-                        currentPiece->setBrush(player_2_colour_king);
-                        break;
-                }
+                qreal scale = pieceDiameter / currentPiece->boundingRect().height();
+                currentPiece->setScale(scale);
             }
         }
 
@@ -195,7 +189,7 @@ bool Checkers::canMove(std::pair<int, int> pos) const {
 bool Checkers::isMoveable(std::shared_ptr<CheckersPiece> piece) const {
     for(int i = 0; i < board_length; ++i) {
         for(int j = 0; j < board_length; ++j) {
-            if(board[i][j].first->boundingRect().center() == piece->boundingRect().center()) {
+            if(board[i][j].first->boundingRect().contains(QPointF(piece->x(), piece->y()))) {
                 if(canCapture({i, j}))
                     return true;
 
@@ -256,13 +250,13 @@ int Checkers::gameOver() const {
     return 0;
 }
 
-std::pair<int, int> Checkers::findPiece(QPointF center) const {
+std::pair<int, int> Checkers::findPiece(QPointF pos) const {
     for(int i = 0; i < board_length; ++i) {
         for(int j = 0; j < board_length; ++j) {
             if(!board[i][j].second)
                 continue;
 
-            if(board[i][j].first->boundingRect().center() == center)
+            if(board[i][j].first->contains(pos))
                 return {i, j};
         }
     }
@@ -375,6 +369,15 @@ void Checkers::displayCredits() {
                             "https://creativecommons.org/publicdomain/zero/1.0/",
                             "CC0 1.0"});
 
+    QVector<QVector<QString>> imageCredits;
+
+    imageCredits.push_back({"https://opengameart.org/content/checkers",
+                            "Checkers",
+                            "https://opengameart.org/users/andi",
+                            "Andi Peredri",
+                            "https://creativecommons.org/licenses/by/3.0/",
+                            "CC BY 3.0"});
+
     QString creditsText = "<p>Created by Suraj Ojela</p>";
 
     creditsText += "<p>Sounds</p>";
@@ -394,6 +397,21 @@ void Checkers::displayCredits() {
                 + c[5]
                 + "</a> <br>";
     }
+
+    creditsText += "<p>Images</p>";
+    creditsText += "<a href='"
+        + imageCredits[0][0]
+        + "'>\""
+        + imageCredits[0][1]
+        + "\"</a> by <a href='"
+        + imageCredits[0][2]
+        + "'>"
+        + imageCredits[0][3]
+        + "</a>\", licensed under <a href='"
+        + imageCredits[0][4]
+        + "'>"
+        + imageCredits[0][5]
+        + "</a> <br>";
 
     creditsBox.setText(creditsText);
 
@@ -418,12 +436,14 @@ void Checkers::player2AI() {
 
     if(difficulty == veryEasy) {
         auto move = ai.calculateMoveVeryEasy(board);
-        selectPiece(board[move.first.first][move.first.second].first->boundingRect().center());
+        selectPiece(QPointF(board[move.first.first][move.first.second].second->x(),
+                            board[move.first.first][move.first.second].second->y()));
         movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
 
         while(hasCapturedThisTurn) {
             auto move = ai.calculateMoveVeryEasy(board);
-            selectPiece(board[move.first.first][move.first.second].first->boundingRect().center());
+            selectPiece(QPointF(board[move.first.first][move.first.second].second->x(),
+                                board[move.first.first][move.first.second].second->y()));
             movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
         }
     }
@@ -444,10 +464,18 @@ void Checkers::resetBoard() {
                 currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
                 currentPiece->typeOfPiece = player2Piece;
                 scene.addItem(currentPiece.get());
+                QRect rect {64, 0, 32, 32};
+                QPixmap cropped = pieceSprites.copy(rect);
+                currentPiece->setPixmap(cropped);
+                currentPiece->setTransformationMode(Qt::SmoothTransformation);
             } else if(j > 4 && (i + j) % 2) {
                 currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
                 currentPiece->typeOfPiece = player1Piece;
                 scene.addItem(currentPiece.get());
+                QRect rect {96, 0, 32, 32};
+                QPixmap cropped = pieceSprites.copy(rect);
+                currentPiece->setPixmap(cropped);
+                currentPiece->setTransformationMode(Qt::SmoothTransformation);
             } else
                 currentPiece = nullptr;
 
