@@ -30,6 +30,7 @@ public:
     void updateBoard();
     bool isMoveable(std::shared_ptr<CheckersPiece> piece) const;
     bool isValid(std::pair<int, int> start, std::pair<int, int> destination) const;
+    void startNewGame();
 
     const int board_length;
     bool hasCapturedThisTurn;
@@ -54,7 +55,6 @@ private:
     void displayCredits();
     void endTurn();
     void player2AI();
-    void startNewGame();
 
     Ui::Checkers *ui;
     const QColor light_square;

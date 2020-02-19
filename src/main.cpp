@@ -10,6 +10,7 @@ int main(int argc, char *argv[]) {
     w = new Checkers;
     w->setWindowTitle("Checkers");
     w->show();
+    w->startNewGame();
 
     return a.exec();
 }
