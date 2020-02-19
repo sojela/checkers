@@ -7,7 +7,7 @@
 
 extern Checkers* w;
 
-std::pair<std::pair<int, int>, std::pair<int, int> > CheckersAI::calculateMove(const QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>>& board) {
+std::pair<std::pair<int, int>, std::pair<int, int> > CheckersAI::calculateMoveVeryEasy(const QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>>& board) {
     std::vector<std::pair<int, int>> moveablePieces;
     std::pair<int, int> randomPiece;
 

@@ -21,6 +21,7 @@ SOURCES += \
     src/checkerspiece.cpp \
     src/checkerssquare.cpp \
     src/checkersview.cpp \
+    src/gameoptions.cpp \
     src/main.cpp
 
 HEADERS += \
@@ -28,10 +29,12 @@ HEADERS += \
     src/checkersai.h \
     src/checkerspiece.h \
     src/checkerssquare.h \
-    src/checkersview.h
+    src/checkersview.h \
+    src/gameoptions.h
 
 FORMS += \
-    checkers.ui
+    checkers.ui \
+    src/gameoptions.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

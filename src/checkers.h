@@ -11,7 +11,8 @@
 #include <QGraphicsScene>
 #include <QMediaPlayer>
 
-enum TypeOfGame {localPvP, PvAIEasy};
+enum TypeOfGame {localPvP, PvAI};
+enum Difficulty {veryEasy};
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Checkers; }
@@ -33,6 +34,8 @@ public:
     const int board_length;
     bool hasCapturedThisTurn;
     std::pair<int, int> selectedPiece;
+    TypeOfGame typeOfGame;
+    Difficulty difficulty;
 
 private slots:
     void resetBoard();
@@ -51,6 +54,7 @@ private:
     void displayCredits();
     void endTurn();
     void player2AI();
+    void startNewGame();
 
     Ui::Checkers *ui;
     const QColor light_square;
@@ -76,7 +80,6 @@ private:
     QMediaPlayer gameOverSound;
     bool gameOverSoundPlayed;
     bool startFirstGame;
-    TypeOfGame typeOfGame;
     CheckersAI ai;
 };
 #endif // CHECKERS_H

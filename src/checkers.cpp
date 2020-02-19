@@ -1,5 +1,6 @@
 #include "checkers.h"
 #include "ui_checkers.h"
+#include "gameoptions.h"
 
 #include <QMessageBox>
 
@@ -21,6 +22,8 @@ Checkers::Checkers(QWidget *parent)
     , selectedPiece(-1, -1)
     , gameOverSoundPlayed(false)
     , startFirstGame(false)
+    , typeOfGame(PvAI)
+    , difficulty(veryEasy)
 {
     // set board dimensions
     board.resize(board_length);
@@ -59,24 +62,22 @@ Checkers::Checkers(QWidget *parent)
                "selection-background-color: blue;");
     menuBar()->setStyleSheet(ss);
 
-    QAction *reset = new QAction("&Restart", this);
+    QAction *newGame = new QAction("&New game", this);
     QAction *credits = new QAction("&Credits", this);
     QAction *quit = new QAction("&Quit", this);
 
     QMenu *file;
     file = menuBar()->addMenu("&File");
-    file->addAction(reset);
+    file->addAction(newGame);
     file->addAction(credits);
     file->addSeparator();
     file->addAction(quit);
 
-    connect(reset, &QAction::triggered, this, &Checkers::resetBoard);
+    connect(newGame, &QAction::triggered, this, &Checkers::startNewGame);
     connect(credits, &QAction::triggered, this, &Checkers::displayCredits);
     connect(quit, &QAction::triggered, this, QApplication::quit);
 
     startFirstGame = true;
-
-    typeOfGame = PvAIEasy;
 }
 
 void Checkers::updateBoard() {
@@ -407,7 +408,7 @@ void Checkers::endTurn() {
     else
         player1Turn = true;
 
-    if(!player1Turn && typeOfGame == PvAIEasy)
+    if(!player1Turn && typeOfGame == PvAI)
         player2AI();
 }
 
@@ -415,15 +416,24 @@ void Checkers::player2AI() {
     if(gameOver())
         return;
 
-    auto move = ai.calculateMove(board);
-    selectPiece(board[move.first.first][move.first.second].first->boundingRect().center());
-    movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
-
-    while(hasCapturedThisTurn) {
-        auto move = ai.calculateMove(board);
+    if(difficulty == veryEasy) {
+        auto move = ai.calculateMoveVeryEasy(board);
         selectPiece(board[move.first.first][move.first.second].first->boundingRect().center());
         movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
+
+        while(hasCapturedThisTurn) {
+            auto move = ai.calculateMoveVeryEasy(board);
+            selectPiece(board[move.first.first][move.first.second].first->boundingRect().center());
+            movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
+        }
     }
+}
+
+void Checkers::startNewGame() {
+    gameOptions g;
+    g.exec();
+
+    resetBoard();
 }
 
 void Checkers::resetBoard() {
