@@ -33,7 +33,7 @@ HEADERS += \
     src/gameoptions.h
 
 FORMS += \
-    checkers.ui \
+    src/checkers.ui \
     src/gameoptions.ui
 
 # Default rules for deployment.
