@@ -17,6 +17,7 @@ public:
 
 private slots:
     void on_start_clicked();
+    void on_gameType_currentIndexChanged(const QString &arg1);
 
 private:
     Ui::gameOptions *ui;

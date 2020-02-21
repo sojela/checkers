@@ -35,3 +35,10 @@ void GameOptions::on_start_clicked() {
 
     this->close();
 }
+
+void GameOptions::on_gameType_currentIndexChanged(const QString& arg1) {
+    if(arg1 == localTwoPlayer)
+        ui->difficulty->hide();
+    else
+        ui->difficulty->show();
+}
