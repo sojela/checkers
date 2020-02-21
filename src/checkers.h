@@ -31,15 +31,13 @@ public:
     bool isMoveable(std::shared_ptr<CheckersPiece> piece) const;
     bool isValid(std::pair<int, int> start, std::pair<int, int> destination) const;
     void startNewGame();
+    void resetBoard();
 
     const int board_length;
     bool hasCapturedThisTurn;
     std::pair<int, int> selectedPiece;
     TypeOfGame typeOfGame;
     Difficulty difficulty;
-
-private slots:
-    void resetBoard();
 
 private:
     std::pair<int, int> findPiece(QPointF center) const;

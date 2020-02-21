@@ -31,5 +31,7 @@ void GameOptions::on_start_clicked() {
 
     w->difficulty = veryEasy;
 
+    w->resetBoard();
+
     this->close();
 }
