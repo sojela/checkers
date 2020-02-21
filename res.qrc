@@ -5,5 +5,7 @@
         <file>sounds/move.mp3</file>
         <file>sounds/defeat.mp3</file>
         <file>images/checkers.png</file>
+        <file>images/play.png</file>
+        <file>images/info.png</file>
     </qresource>
 </RCC>

@@ -5,6 +5,7 @@
 #include "checkersview.h"
 #include "checkerspiece.h"
 #include "checkersai.h"
+#include "buttons.h"
 
 #include <QMainWindow>
 #include <QVector>
@@ -32,6 +33,7 @@ public:
     bool isValid(std::pair<int, int> start, std::pair<int, int> destination) const;
     void startNewGame();
     void resetBoard();
+    void displayCredits();
 
     const int board_length;
     bool hasCapturedThisTurn;
@@ -50,7 +52,6 @@ private:
     bool canMove(std::pair<int, int> pos) const;
     int gameOver() const;
     void removeCapturedPiece(std::pair<int, int> start, std::pair<int, int> end);
-    void displayCredits();
     void endTurn();
     void player2AI();
 
@@ -66,6 +67,7 @@ private:
     const QColor text_colour;
     const qreal square_z_height;
     const qreal piece_z_height;
+    const qreal button_z_height;
     QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>> board;
     std::pair<int, int> captured;
     bool pieceSelected;
@@ -80,6 +82,7 @@ private:
     bool startFirstGame;
     CheckersAI ai;
     QPixmap pieceSprites;
-
+    PlayButton playButton;
+    InfoButton infoButton;
 };
 #endif // CHECKERS_H
