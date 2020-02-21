@@ -8,7 +8,7 @@ GameOptions::GameOptions(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::gameOptions)
     , veryEasyDifficulty("Very easy")
-    , localTwoPlayer("Local PvP")
+    , localTwoPlayer("Local 2 player")
     , playervAI("Play against computer")
 {
     ui->setupUi(this);
