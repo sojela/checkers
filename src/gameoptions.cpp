@@ -4,7 +4,7 @@
 
 extern Checkers* w;
 
-gameOptions::gameOptions(QWidget *parent)
+GameOptions::GameOptions(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::gameOptions)
     , veryEasyDifficulty("Very easy")
@@ -19,11 +19,11 @@ gameOptions::gameOptions(QWidget *parent)
     ui->difficulty->addItem(veryEasyDifficulty);
 }
 
-gameOptions::~gameOptions() {
+GameOptions::~GameOptions() {
     delete ui;
 }
 
-void gameOptions::on_start_clicked() {
+void GameOptions::on_start_clicked() {
     if(ui->gameType->currentData(0) == localTwoPlayer)
         w->typeOfGame = localPvP;
     else

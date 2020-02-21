@@ -450,7 +450,7 @@ void Checkers::player2AI() {
 }
 
 void Checkers::startNewGame() {
-    gameOptions g;
+    GameOptions g;
     g.exec();
 
     resetBoard();

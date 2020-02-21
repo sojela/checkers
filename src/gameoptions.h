@@ -7,13 +7,13 @@ namespace Ui {
 class gameOptions;
 }
 
-class gameOptions : public QDialog
+class GameOptions : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit gameOptions(QWidget *parent = nullptr);
-    ~gameOptions();
+    explicit GameOptions(QWidget *parent = nullptr);
+    ~GameOptions();
 
 private slots:
     void on_start_clicked();
