@@ -13,6 +13,21 @@ GameOptions::GameOptions(QWidget *parent)
 {
     ui->setupUi(this);
 
+    setWindowTitle("New game");
+
+    QPalette pal = palette();
+    pal.setColor(QPalette::Background, Qt::black);
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+
+    QString ss("background-color: black;"
+               "color: white;"
+               "selection-background-color: blue;");
+
+    ui->gameType->setStyleSheet(ss);
+    ui->difficulty->setStyleSheet(ss);
+    ui->start->setStyleSheet(ss);
+
     ui->gameType->addItem(playervAI);
     ui->gameType->addItem(localTwoPlayer);
 
