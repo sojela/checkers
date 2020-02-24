@@ -23,17 +23,20 @@ Checkers::Checkers(QWidget *parent)
     , square_z_height(0)
     , piece_z_height(1)
     , button_z_height(2)
+    , gameOverText(new QGraphicsTextItem)
     , gameOverSoundPlayed(false)
     , startFirstGame(false)
     , pieceSprites(":/images/checkers.png")
+    , playButton(new PlayButton)
+    , infoButton(new InfoButton)
 {
-    playButton.setTransformationMode(Qt::SmoothTransformation);
-    scene.addItem(&playButton);
-    playButton.setZValue(button_z_height);
+    playButton->setTransformationMode(Qt::SmoothTransformation);
+    scene.addItem(playButton);
+    playButton->setZValue(button_z_height);
 
-    infoButton.setTransformationMode(Qt::SmoothTransformation);
-    scene.addItem(&infoButton);
-    infoButton.setZValue(button_z_height);
+    infoButton->setTransformationMode(Qt::SmoothTransformation);
+    scene.addItem(infoButton);
+    infoButton->setZValue(button_z_height);
 
     // set board dimensions
     board.resize(board_length);
@@ -54,7 +57,7 @@ Checkers::Checkers(QWidget *parent)
 
     resetBoard();
 
-    scene.addItem(&gameOverText);
+    scene.addItem(gameOverText);
 
     scene.setBackgroundBrush(background_colour);
 
@@ -123,31 +126,31 @@ void Checkers::updateBoard() {
     QPoint playButtonTopLeftCorner {(int) (scene.width() * 0.375) - (iconLength / 2), (boardTopLeftCornerY / 2) - (iconLength / 2)};
     QPoint infoButtonTopLeftCorner {(int) (scene.width() * 0.625) - (iconLength / 2), playButtonTopLeftCorner.y()};
 
-    playButton.setPos(playButtonTopLeftCorner);
-    infoButton.setPos(infoButtonTopLeftCorner);
+    playButton->setPos(playButtonTopLeftCorner);
+    infoButton->setPos(infoButtonTopLeftCorner);
 
-    qreal scale = iconLength / playButton.boundingRect().height();
-    playButton.setScale(scale);
+    qreal scale = iconLength / playButton->boundingRect().height();
+    playButton->setScale(scale);
 
-    scale = iconLength / infoButton.boundingRect().height();
-    infoButton.setScale(scale);
+    scale = iconLength / infoButton->boundingRect().height();
+    infoButton->setScale(scale);
 
     int winner = gameOver();
 
     int fontSize = std::min(scene.width(), scene.height()) / 20;
     QFont font {"Times", fontSize};
-    gameOverText.setFont(font);
+    gameOverText->setFont(font);
 
-    gameOverText.setDefaultTextColor(background_colour);
+    gameOverText->setDefaultTextColor(background_colour);
 
-    gameOverText.setPlainText("Player " + QString::number(winner) + " wins!");
+    gameOverText->setPlainText("Player " + QString::number(winner) + " wins!");
 
-    int xPos = (scene.width() / 2) - (gameOverText.boundingRect().width() / 2);
+    int xPos = (scene.width() / 2) - (gameOverText->boundingRect().width() / 2);
     int yPos = scene.height() * 0.9;
-    gameOverText.setPos(xPos, yPos);
+    gameOverText->setPos(xPos, yPos);
 
     if(winner != 0) {
-        gameOverText.setDefaultTextColor(text_colour);
+        gameOverText->setDefaultTextColor(text_colour);
         if(!gameOverSoundPlayed && startFirstGame) {
             if(winner == 1)
                 gameOverSound.setMedia(QUrl("qrc:/sounds/victory.mp3"));
@@ -499,7 +502,7 @@ void Checkers::resetBoard() {
     player1Turn = true;
     hasCapturedThisTurn = false;
     gameOverSoundPlayed = false;
-    gameOverText.setDefaultTextColor(background_colour);
+    gameOverText->setDefaultTextColor(background_colour);
 
     updateBoard();
 }

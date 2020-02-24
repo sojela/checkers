@@ -74,7 +74,7 @@ private:
     bool player1Turn;
     QGraphicsScene scene;
     CheckersView view;
-    QGraphicsTextItem gameOverText;
+    QGraphicsTextItem* gameOverText;
     QMediaPlayer moveSound;
     QMediaPlayer kingingSound;
     QMediaPlayer gameOverSound;
@@ -82,7 +82,7 @@ private:
     bool startFirstGame;
     CheckersAI ai;
     QPixmap pieceSprites;
-    PlayButton playButton;
-    InfoButton infoButton;
+    PlayButton* playButton;
+    InfoButton* infoButton;
 };
 #endif // CHECKERS_H
