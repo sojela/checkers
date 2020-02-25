@@ -3,7 +3,7 @@
 
 #include <QGraphicsPixmapItem>
 
-enum {player1Piece = 1, player2Piece = 2, player1KingPiece = 3, player2KingPiece = 4};
+enum {player1Piece, player2Piece, player1KingPiece, player2KingPiece};
 
 class CheckersPiece : public QGraphicsPixmapItem {
 public:

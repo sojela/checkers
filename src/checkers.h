@@ -26,11 +26,11 @@ class Checkers : public QMainWindow
 public:
     Checkers(QWidget *parent = nullptr);
     ~Checkers();
-    void selectPiece(QPointF center);
-    void movePiece(QPointF center);
-    void updateBoard();
-    bool isMoveable(std::shared_ptr<CheckersPiece> piece) const;
-    bool isValid(std::pair<int, int> start, std::pair<int, int> destination) const;
+    void selectPiece(const QPointF& center);
+    void movePiece(const QPointF& center);
+    void update();
+    bool isMoveable(const std::shared_ptr<CheckersPiece>& piece) const;
+    bool isValid(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
     void startNewGame();
     void resetBoard();
     void displayCredits();
@@ -42,18 +42,19 @@ public:
     Difficulty difficulty;
 
 private:
-    std::pair<int, int> findPiece(QPointF center) const;
-    bool isCurrentPlayersPiece(std::pair<int, int> pos) const;
-    bool canMoveForwards(std::pair<int, int> start, std::pair<int, int> destination) const;
-    bool canMoveBackward(std::pair<int, int> start, std::pair<int, int> destination) const;
-    bool canCaptureForwards(std::pair<int, int> start, std::pair<int, int> destination) const;
-    bool canCaptureBackwards(std::pair<int, int> start, std::pair<int, int> destination) const;
-    bool canCapture(std::pair<int, int> pos) const;
-    bool canMove(std::pair<int, int> pos) const;
+    std::pair<int, int> findPiece(const QPointF& center) const;
+    bool isCurrentPlayersPiece(const std::pair<int, int>& pos) const;
+    bool canMoveForwardsWithoutCapture(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
+    bool canMoveBackwardWithoutCapture(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
+    bool canCaptureForwards(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
+    bool canCaptureBackwards(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
+    bool canCapture(const std::pair<int, int>& pos) const;
+    bool canMoveWithoutCapture(const std::pair<int, int>& pos) const;
     int gameOver() const;
-    void removeCapturedPiece(std::pair<int, int> start, std::pair<int, int> end);
+    void removeCapturedPiece(const std::pair<int, int>& start, const std::pair<int, int>& end);
     void endTurn();
     void player2AI();
+    void kinging(int height, std::shared_ptr<CheckersPiece> piece);
 
     Ui::Checkers *ui;
     const QColor light_square;

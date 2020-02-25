@@ -44,11 +44,18 @@ Checkers::Checkers(QWidget *parent)
         board[i].resize(number_of_squares_in_board);
 
     // create board
-    for(auto& column : board) {
-        for(auto& square : column) {
-            square.first = std::shared_ptr<CheckersSquare> (new CheckersSquare);
-            square.first->setZValue(square_z_height);
-            scene.addItem(square.first.get());
+    for(int i = 0; i < number_of_squares_in_board; ++i) {
+        for(int j = 0; j < number_of_squares_in_board; ++j) {
+            auto& currentSquare = board[i][j].first;
+            currentSquare = std::shared_ptr<CheckersSquare> (new CheckersSquare);
+            currentSquare->setZValue(square_z_height);
+            currentSquare->setPen(Qt::NoPen);
+            scene.addItem(currentSquare.get());
+
+            if((i + j) % 2)
+                currentSquare->setBrush(dark_square);
+            else
+                currentSquare->setBrush(light_square);
         }
     }
 
@@ -57,12 +64,14 @@ Checkers::Checkers(QWidget *parent)
 
     resetBoard();
 
+    gameOverText->setDefaultTextColor(background_colour);
     scene.addItem(gameOverText);
 
     scene.setBackgroundBrush(background_colour);
 
     ui->setupUi(this);
 
+    // starting window size
     scene.setSceneRect(0, 0, 800, 600);
 
     view.setViewport(this);
@@ -85,32 +94,18 @@ void Checkers::update() {
         for(int j = 0; j < number_of_squares_in_board; ++j) {
             auto currentSquare = board[i][j].first;
             currentSquare->setRect(boardTopLeftCornerX + (gridSquareLength * i), boardTopLeftCornerY + (gridSquareLength * j), gridSquareLength, gridSquareLength);
-            currentSquare->setPen(Qt::NoPen);
 
             if((i + j) % 2) {
                 if(pieceSelected && currentSquare->boundingRect().center() == board[selectedPiece.first][selectedPiece.second].first->boundingRect().center())
                     currentSquare->setBrush(dark_square_highlight);
-                else
+                else if(currentSquare->brush() == dark_square_highlight)
                     currentSquare->setBrush(dark_square);
-            } else
-                currentSquare->setBrush(light_square);
+            }
 
             if(board[i][j].second) {
                 auto currentPiece = board[i][j].second;
 
-                if(j == 0 && currentPiece->typeOfPiece == player1Piece) {
-                    currentPiece->typeOfPiece = player1KingPiece;
-                    QRect rect {32, 0, 32, 32};
-                    QPixmap cropped = pieceSprites.copy(rect);
-                    currentPiece->setPixmap(cropped);
-                    kingingSound.play();
-                } else if(j == 7 && currentPiece->typeOfPiece == player2Piece) {
-                    currentPiece->typeOfPiece = player2KingPiece;
-                    QRect rect {0, 0, 32, 32};
-                    QPixmap cropped = pieceSprites.copy(rect);
-                    currentPiece->setPixmap(cropped);
-                    kingingSound.play();
-                }
+                kinging(j, currentPiece);
 
                 QRectF boundingRect {0, 0, pieceDiameter, pieceDiameter};
                 boundingRect.moveCenter(board[i][j].first->boundingRect().center());
@@ -135,14 +130,13 @@ void Checkers::update() {
     scale = iconLength / infoButton->boundingRect().height();
     infoButton->setScale(scale);
 
+
     int winner = gameOver();
 
+    // this is done every loop so that when the text is displayed it is centred
     int fontSize = std::min(scene.width(), scene.height()) / 20;
     QFont font {"Times", fontSize};
     gameOverText->setFont(font);
-
-    gameOverText->setDefaultTextColor(background_colour);
-
     gameOverText->setPlainText("Player " + QString::number(winner) + " wins!");
 
     int xPos = (scene.width() / 2) - (gameOverText->boundingRect().width() / 2);
@@ -167,39 +161,35 @@ void Checkers::update() {
     }
 }
 
-bool Checkers::canMove(std::pair<int, int> pos) const {
+bool Checkers::canMoveWithoutCapture(const std::pair<int, int>& pos) const {
     std::pair<int, int> upLeft {pos.first - 1, pos.second - 1};
     std::pair<int, int> upRight {pos.first + 1, pos.second - 1};
     std::pair<int, int> downLeft {pos.first - 1, pos.second + 1};
     std::pair<int, int> downRight {pos.first + 1, pos.second + 1};
 
-    if(upLeft.first >= 0 && upLeft.second >= 0) {
+    if(upLeft.first >= 0 && upLeft.second >= 0)
         if(isValid(pos, upLeft)) return true;
-    }
 
-    if(upRight.first < number_of_squares_in_board && upRight.second >= 0) {
+    if(upRight.first < number_of_squares_in_board && upRight.second >= 0)
         if(isValid(pos, upRight)) return true;
-    }
 
-    if(downLeft.first >= 0 && downLeft.second < number_of_squares_in_board) {
+    if(downLeft.first >= 0 && downLeft.second < number_of_squares_in_board)
         if(isValid(pos, downLeft)) return true;
-    }
 
-    if(downRight.first < number_of_squares_in_board && downRight.second < number_of_squares_in_board) {
+    if(downRight.first < number_of_squares_in_board && downRight.second < number_of_squares_in_board)
         if(isValid(pos, downRight)) return true;
-    }
 
     return false;
 }
 
-bool Checkers::isMoveable(std::shared_ptr<CheckersPiece> piece) const {
+bool Checkers::isMoveable(const std::shared_ptr<CheckersPiece>& piece) const {
     for(int i = 0; i < number_of_squares_in_board; ++i) {
         for(int j = 0; j < number_of_squares_in_board; ++j) {
             if(board[i][j].first->boundingRect().contains(QPointF(piece->x(), piece->y()))) {
                 if(canCapture({i, j}))
                     return true;
 
-                if(canMove({i, j}))
+                if(canMoveWithoutCapture({i, j}))
                     return true;
 
                 return false;
@@ -213,50 +203,41 @@ bool Checkers::isMoveable(std::shared_ptr<CheckersPiece> piece) const {
 int Checkers::gameOver() const {
     int countPlayer1Pieces = 0;
     int countPlayer2Pieces = 0;
+    int countPlayer1MoveablePieces = 0;
+    int countPlayer2MoveablePieces = 0;
+
 
     for(auto& column : board) {
         for(auto& square : column) {
             if(square.second) {
                 if(square.second->typeOfPiece == player1Piece
-                    || square.second->typeOfPiece == player1KingPiece)
+                    || square.second->typeOfPiece == player1KingPiece) {
                     ++countPlayer1Pieces;
-                else if(square.second->typeOfPiece == player2Piece
-                    || square.second->typeOfPiece == player2KingPiece)
+
+                    if(isMoveable(square.second))
+                        ++countPlayer1MoveablePieces;
+                } else if(square.second->typeOfPiece == player2Piece
+                    || square.second->typeOfPiece == player2KingPiece) {
                     ++countPlayer2Pieces;
+
+                    if(isMoveable(square.second))
+                        ++countPlayer2MoveablePieces;
+                }
             }
         }
     }
 
-    if(countPlayer1Pieces == 0)
+    if(countPlayer1Pieces == 0
+            || (countPlayer1MoveablePieces == 0 && player1Turn))
         return 2;
-    else if(countPlayer2Pieces == 0)
-        return 1;
-
-    int countPlayer1MoveablePieces = 0;
-    int countPlayer2MoveablePieces = 0;
-
-    for(auto& column : board) {
-        for(auto& square : column) {
-            if(square.second) {
-                if((square.second->typeOfPiece == player1Piece || square.second->typeOfPiece == player1KingPiece)
-                    && isMoveable(square.second))
-                    ++countPlayer1MoveablePieces;
-                else if((square.second->typeOfPiece == player2Piece || square.second->typeOfPiece == player2KingPiece)
-                    && isMoveable(square.second))
-                    ++countPlayer2MoveablePieces;
-            }
-        }
-    }
-
-    if(countPlayer1MoveablePieces == 0 && player1Turn)
-        return 2;
-    else if(countPlayer2MoveablePieces == 0 && !player1Turn)
+    else if(countPlayer2Pieces == 0
+            || (countPlayer2MoveablePieces == 0 && !player1Turn))
         return 1;
 
     return 0;
 }
 
-std::pair<int, int> Checkers::findPiece(QPointF pos) const {
+std::pair<int, int> Checkers::findPiece(const QPointF& pos) const {
     for(int i = 0; i < number_of_squares_in_board; ++i) {
         for(int j = 0; j < number_of_squares_in_board; ++j) {
             if(!board[i][j].second)
@@ -270,21 +251,24 @@ std::pair<int, int> Checkers::findPiece(QPointF pos) const {
     return {-1, -1};
 }
 
-bool Checkers::isCurrentPlayersPiece(std::pair<int, int> pos) const {
-    if(player1Turn) {
-        if(board[pos.first][pos.second].second->typeOfPiece == player1Piece ||
-                board[pos.first][pos.second].second->typeOfPiece == player1KingPiece)
+// assume pos has a piece
+bool Checkers::isCurrentPlayersPiece(const std::pair<int, int>& pos) const {
+    if(board[pos.first][pos.second].second->typeOfPiece == player1Piece ||
+            board[pos.first][pos.second].second->typeOfPiece == player1KingPiece) {
+        if(player1Turn)
             return true;
-    } else {
-        if(board[pos.first][pos.second].second->typeOfPiece == player2Piece ||
-                board[pos.first][pos.second].second->typeOfPiece == player2KingPiece)
-            return true;
+        else
+            return false;
     }
 
-    return false;
+    // pos has a player two piece
+    if(player1Turn)
+        return false;
+    else
+        return true;
 }
 
-void Checkers::selectPiece(QPointF center) {
+void Checkers::selectPiece(const QPointF& center) {
     if(hasCapturedThisTurn)
         return;
 
@@ -299,32 +283,28 @@ void Checkers::selectPiece(QPointF center) {
     }
 }
 
-bool Checkers::canCapture(std::pair<int, int> pos) const {
+bool Checkers::canCapture(const std::pair<int, int>& pos) const {
     std::pair<int, int> upLeft {pos.first - 2, pos.second - 2};
     std::pair<int, int> upRight {pos.first + 2, pos.second - 2};
     std::pair<int, int> downLeft {pos.first - 2, pos.second + 2};
     std::pair<int, int> downRight {pos.first + 2, pos.second + 2};
 
-    if(upLeft.first >= 0 && upLeft.second >= 0) {
+    if(upLeft.first >= 0 && upLeft.second >= 0)
         if(isValid(pos, upLeft)) return true;
-    }
 
-    if(upRight.first < number_of_squares_in_board && upRight.second >= 0) {
+    if(upRight.first < number_of_squares_in_board && upRight.second >= 0)
         if(isValid(pos, upRight)) return true;
-    }
 
-    if(downLeft.first >= 0 && downLeft.second < number_of_squares_in_board) {
+    if(downLeft.first >= 0 && downLeft.second < number_of_squares_in_board)
         if(isValid(pos, downLeft)) return true;
-    }
 
-    if(downRight.first < number_of_squares_in_board && downRight.second < number_of_squares_in_board) {
+    if(downRight.first < number_of_squares_in_board && downRight.second < number_of_squares_in_board)
         if(isValid(pos, downRight)) return true;
-    }
 
     return false;
 }
 
-void Checkers::removeCapturedPiece(std::pair<int, int> start, std::pair<int, int> end) {
+void Checkers::removeCapturedPiece(const std::pair<int, int>& start, const std::pair<int, int>& end) {
     std::pair<int, int> captured;
 
     if(end.first > start.first)
@@ -342,7 +322,6 @@ void Checkers::removeCapturedPiece(std::pair<int, int> start, std::pair<int, int
 
 void Checkers::displayCredits() {
     QMessageBox creditsBox;
-    creditsBox.setTextFormat(Qt::RichText);
     creditsBox.setWindowTitle("Credits");
 
     QVector<QVector<QString>> soundCredits;
@@ -451,18 +430,36 @@ void Checkers::player2AI() {
     if(gameOver())
         return;
 
+    std::pair<std::pair<int, int>, std::pair<int, int>> move;
+
     if(difficulty == veryEasy) {
-        auto move = ai.calculateMoveVeryEasy(board);
+        move = ai.calculateMoveVeryEasy(board);
         selectPiece(QPointF(board[move.first.first][move.first.second].second->x(),
                             board[move.first.first][move.first.second].second->y()));
         movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
 
         while(hasCapturedThisTurn) {
-            auto move = ai.calculateMoveVeryEasy(board);
+            move = ai.calculateMoveVeryEasy(board);
             selectPiece(QPointF(board[move.first.first][move.first.second].second->x(),
                                 board[move.first.first][move.first.second].second->y()));
             movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
         }
+    }
+}
+
+void Checkers::kinging(int height, std::shared_ptr<CheckersPiece> piece) {
+    if(height == 0 && piece->typeOfPiece == player1Piece) {
+        piece->typeOfPiece = player1KingPiece;
+        QRect rect {32, 0, 32, 32};
+        QPixmap cropped = pieceSprites.copy(rect);
+        piece->setPixmap(cropped);
+        kingingSound.play();
+    } else if(height == number_of_squares_in_board - 1 && piece->typeOfPiece == player2Piece) {
+        piece->typeOfPiece = player2KingPiece;
+        QRect rect {0, 0, 32, 32};
+        QPixmap cropped = pieceSprites.copy(rect);
+        piece->setPixmap(cropped);
+        kingingSound.play();
     }
 }
 
@@ -472,6 +469,12 @@ void Checkers::startNewGame() {
 }
 
 void Checkers::resetBoard() {
+    QRect player1SpriteRect {96, 0, 32, 32};
+    QPixmap player1Sprite = pieceSprites.copy(player1SpriteRect);
+
+    QRect player2SpriteRect {64, 0, 32, 32};
+    QPixmap player2Sprite = pieceSprites.copy(player2SpriteRect);
+
     for(int i = 0; i < number_of_squares_in_board; ++i) {
         for(int j = 0; j < number_of_squares_in_board; ++j) {
             auto& currentPiece = board[i][j].second;
@@ -479,17 +482,13 @@ void Checkers::resetBoard() {
                 currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
                 currentPiece->typeOfPiece = player2Piece;
                 scene.addItem(currentPiece.get());
-                QRect rect {64, 0, 32, 32};
-                QPixmap cropped = pieceSprites.copy(rect);
-                currentPiece->setPixmap(cropped);
+                currentPiece->setPixmap(player2Sprite);
                 currentPiece->setTransformationMode(Qt::SmoothTransformation);
             } else if(j > 4 && (i + j) % 2) {
                 currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
                 currentPiece->typeOfPiece = player1Piece;
                 scene.addItem(currentPiece.get());
-                QRect rect {96, 0, 32, 32};
-                QPixmap cropped = pieceSprites.copy(rect);
-                currentPiece->setPixmap(cropped);
+                currentPiece->setPixmap(player1Sprite);
                 currentPiece->setTransformationMode(Qt::SmoothTransformation);
             } else
                 currentPiece = nullptr;
@@ -508,7 +507,7 @@ void Checkers::resetBoard() {
     update();
 }
 
-void Checkers::movePiece(QPointF center) {
+void Checkers::movePiece(const QPointF& center) {
     if(!pieceSelected)
         return;
 
@@ -544,7 +543,7 @@ void Checkers::movePiece(QPointF center) {
     }
 }
 
-bool Checkers::canMoveForwards(std::pair<int, int> start, std::pair<int, int> destination) const {
+bool Checkers::canMoveForwardsWithoutCapture(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
     if(hasCapturedThisTurn)
         return false;
 
@@ -557,7 +556,7 @@ bool Checkers::canMoveForwards(std::pair<int, int> start, std::pair<int, int> de
     return false;
 }
 
-bool Checkers::canMoveBackward(std::pair<int, int> start, std::pair<int, int> destination) const {
+bool Checkers::canMoveBackwardWithoutCapture(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
     if(hasCapturedThisTurn)
         return false;
 
@@ -576,7 +575,7 @@ bool Checkers::canMoveBackward(std::pair<int, int> start, std::pair<int, int> de
     return false;
 }
 
-bool Checkers::canCaptureForwards(std::pair<int, int> start, std::pair<int, int> destination) const {
+bool Checkers::canCaptureForwards(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
     if(player1Turn) {
         if(start.second - destination.second == 2 && abs(destination.first - start.first) == 2) {
             std::pair<int, int> enemyPos;
@@ -614,7 +613,7 @@ bool Checkers::canCaptureForwards(std::pair<int, int> start, std::pair<int, int>
     return false;
 }
 
-bool Checkers::canCaptureBackwards(std::pair<int, int> start, std::pair<int, int> destination) const {
+bool Checkers::canCaptureBackwards(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
     if(player1Turn) {
         if(board[start.first][start.second].second->typeOfPiece == player1KingPiece) {
             if(destination.second - start.second == 2 && abs(destination.first - start.first) == 2) {
@@ -656,7 +655,8 @@ bool Checkers::canCaptureBackwards(std::pair<int, int> start, std::pair<int, int
     return false;
 }
 
-bool Checkers::isValid(std::pair<int, int> start, std::pair<int, int> destination) const {
+// assume coordinates are valid
+bool Checkers::isValid(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
     // no piece to move
     if(!board[start.first][start.second].second)
         return false;
@@ -668,16 +668,10 @@ bool Checkers::isValid(std::pair<int, int> start, std::pair<int, int> destinatio
     if(!isCurrentPlayersPiece(start))
         return false;
 
-    if(canMoveForwards(start, destination))
-        return true;
-
-    if(canMoveBackward(start, destination))
-        return true;
-
-    if(canCaptureForwards(start, destination))
-        return true;
-
-    if(canCaptureBackwards(start, destination))
+    if(canMoveForwardsWithoutCapture(start, destination)
+    || canMoveBackwardWithoutCapture(start, destination)
+    || canCaptureForwards(start, destination)
+    || canCaptureBackwards(start, destination))
         return true;
 
     return false;
