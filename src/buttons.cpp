@@ -4,7 +4,7 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSceneMouseEvent>
 
-extern Checkers* w;
+extern Checkers* MainWindow;
 
 PlayButton::PlayButton() {
     this->setPixmap(QPixmap(":/images/play.png"));
@@ -14,7 +14,7 @@ void PlayButton::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if(event->button() != Qt::LeftButton)
         return;
 
-    w->startNewGame();
+    MainWindow->startNewGame();
 
     QGraphicsItem::mousePressEvent(event);
 }
@@ -27,7 +27,7 @@ void InfoButton::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if(event->button() != Qt::LeftButton)
         return;
 
-    w->displayCredits();
+    MainWindow->displayCredits();
 
     QGraphicsItem::mousePressEvent(event);
 }

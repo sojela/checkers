@@ -35,7 +35,7 @@ public:
     void resetBoard();
     void displayCredits();
 
-    const int board_length;
+    const int number_of_squares_in_board;
     bool hasCapturedThisTurn;
     std::pair<int, int> selectedPiece;
     TypeOfGame typeOfGame;
@@ -79,7 +79,7 @@ private:
     QMediaPlayer kingingSound;
     QMediaPlayer gameOverSound;
     bool gameOverSoundPlayed;
-    bool startFirstGame;
+    bool readyToStartFirstGame;
     CheckersAI ai;
     QPixmap pieceSprites;
     PlayButton* playButton;

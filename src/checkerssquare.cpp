@@ -3,11 +3,11 @@
 
 #include <QGraphicsSceneMouseEvent>
 
-extern Checkers* w;
+extern Checkers* MainWindow;
 
 void CheckersSquare::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if(event->button() != Qt::LeftButton)
         return;
 
-    w->movePiece(this->boundingRect().center());
+    MainWindow->movePiece(this->boundingRect().center());
 }

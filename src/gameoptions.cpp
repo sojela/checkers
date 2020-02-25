@@ -2,7 +2,7 @@
 #include "ui_gameoptions.h"
 #include "checkers.h"
 
-extern Checkers* w;
+extern Checkers* MainWindow;
 
 GameOptions::GameOptions(QWidget *parent)
     : QDialog(parent)
@@ -40,13 +40,13 @@ GameOptions::~GameOptions() {
 
 void GameOptions::on_start_clicked() {
     if(ui->gameType->currentData(0) == localTwoPlayer)
-        w->typeOfGame = localPvP;
+        MainWindow->typeOfGame = localPvP;
     else
-        w->typeOfGame = PvAI;
+        MainWindow->typeOfGame = PvAI;
 
-    w->difficulty = veryEasy;
+    MainWindow->difficulty = veryEasy;
 
-    w->resetBoard();
+    MainWindow->resetBoard();
 
     this->close();
 }

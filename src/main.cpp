@@ -2,15 +2,15 @@
 
 #include <QApplication>
 
-Checkers* w;
+Checkers* MainWindow;
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
-    w = new Checkers;
-    w->setWindowTitle("Checkers");
-    w->show();
-    w->startNewGame();
+    MainWindow = new Checkers;
+    MainWindow->setWindowTitle("Checkers");
+    MainWindow->show();
+    MainWindow->startNewGame();
 
     return a.exec();
 }

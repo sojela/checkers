@@ -6,7 +6,7 @@
 
 Checkers::Checkers(QWidget *parent)
     : QMainWindow(parent)
-    , board_length(8)
+    , number_of_squares_in_board(8)
     , selectedPiece(-1, -1)
     , typeOfGame(PvAI)
     , difficulty(veryEasy)
@@ -25,7 +25,7 @@ Checkers::Checkers(QWidget *parent)
     , button_z_height(2)
     , gameOverText(new QGraphicsTextItem)
     , gameOverSoundPlayed(false)
-    , startFirstGame(false)
+    , readyToStartFirstGame(false)
     , pieceSprites(":/images/checkers.png")
     , playButton(new PlayButton)
     , infoButton(new InfoButton)
@@ -39,9 +39,9 @@ Checkers::Checkers(QWidget *parent)
     infoButton->setZValue(button_z_height);
 
     // set board dimensions
-    board.resize(board_length);
-    for(int i = 0; i < board_length; ++i)
-        board[i].resize(board_length);
+    board.resize(number_of_squares_in_board);
+    for(int i = 0; i < number_of_squares_in_board; ++i)
+        board[i].resize(number_of_squares_in_board);
 
     // create board
     for(auto& column : board) {
@@ -70,19 +70,19 @@ Checkers::Checkers(QWidget *parent)
     view.setScene(&scene);
     view.show();
 
-    startFirstGame = true;
+    readyToStartFirstGame = true;
 }
 
-void Checkers::updateBoard() {
+void Checkers::update() {
     double fractionOfWindowToUse = 0.75;
     int boardLength = std::min(scene.height(), scene.width()) * fractionOfWindowToUse;
     int boardTopLeftCornerX = (scene.width() - boardLength) / 2;
     int boardTopLeftCornerY = (scene.height() - boardLength) / 2;
-    int gridSquareLength = boardLength / board_length;
+    int gridSquareLength = boardLength / number_of_squares_in_board;
     double pieceDiameter = gridSquareLength * 0.9;
 
-    for(int i = 0; i < board_length; ++i)
-        for(int j = 0; j < board_length; ++j) {
+    for(int i = 0; i < number_of_squares_in_board; ++i)
+        for(int j = 0; j < number_of_squares_in_board; ++j) {
             auto currentSquare = board[i][j].first;
             currentSquare->setRect(boardTopLeftCornerX + (gridSquareLength * i), boardTopLeftCornerY + (gridSquareLength * j), gridSquareLength, gridSquareLength);
             currentSquare->setPen(Qt::NoPen);
@@ -151,7 +151,8 @@ void Checkers::updateBoard() {
 
     if(winner != 0) {
         gameOverText->setDefaultTextColor(text_colour);
-        if(!gameOverSoundPlayed && startFirstGame) {
+
+        if(!gameOverSoundPlayed && readyToStartFirstGame) {
             if(winner == 1)
                 gameOverSound.setMedia(QUrl("qrc:/sounds/victory.mp3"));
             else
@@ -176,15 +177,15 @@ bool Checkers::canMove(std::pair<int, int> pos) const {
         if(isValid(pos, upLeft)) return true;
     }
 
-    if(upRight.first < board_length && upRight.second >= 0) {
+    if(upRight.first < number_of_squares_in_board && upRight.second >= 0) {
         if(isValid(pos, upRight)) return true;
     }
 
-    if(downLeft.first >= 0 && downLeft.second < board_length) {
+    if(downLeft.first >= 0 && downLeft.second < number_of_squares_in_board) {
         if(isValid(pos, downLeft)) return true;
     }
 
-    if(downRight.first < board_length && downRight.second < board_length) {
+    if(downRight.first < number_of_squares_in_board && downRight.second < number_of_squares_in_board) {
         if(isValid(pos, downRight)) return true;
     }
 
@@ -192,8 +193,8 @@ bool Checkers::canMove(std::pair<int, int> pos) const {
 }
 
 bool Checkers::isMoveable(std::shared_ptr<CheckersPiece> piece) const {
-    for(int i = 0; i < board_length; ++i) {
-        for(int j = 0; j < board_length; ++j) {
+    for(int i = 0; i < number_of_squares_in_board; ++i) {
+        for(int j = 0; j < number_of_squares_in_board; ++j) {
             if(board[i][j].first->boundingRect().contains(QPointF(piece->x(), piece->y()))) {
                 if(canCapture({i, j}))
                     return true;
@@ -256,8 +257,8 @@ int Checkers::gameOver() const {
 }
 
 std::pair<int, int> Checkers::findPiece(QPointF pos) const {
-    for(int i = 0; i < board_length; ++i) {
-        for(int j = 0; j < board_length; ++j) {
+    for(int i = 0; i < number_of_squares_in_board; ++i) {
+        for(int j = 0; j < number_of_squares_in_board; ++j) {
             if(!board[i][j].second)
                 continue;
 
@@ -294,7 +295,7 @@ void Checkers::selectPiece(QPointF center) {
 
         selectedPiece = pos;
         pieceSelected = true;
-        updateBoard();
+        update();
     }
 }
 
@@ -308,15 +309,15 @@ bool Checkers::canCapture(std::pair<int, int> pos) const {
         if(isValid(pos, upLeft)) return true;
     }
 
-    if(upRight.first < board_length && upRight.second >= 0) {
+    if(upRight.first < number_of_squares_in_board && upRight.second >= 0) {
         if(isValid(pos, upRight)) return true;
     }
 
-    if(downLeft.first >= 0 && downLeft.second < board_length) {
+    if(downLeft.first >= 0 && downLeft.second < number_of_squares_in_board) {
         if(isValid(pos, downLeft)) return true;
     }
 
-    if(downRight.first < board_length && downRight.second < board_length) {
+    if(downRight.first < number_of_squares_in_board && downRight.second < number_of_squares_in_board) {
         if(isValid(pos, downRight)) return true;
     }
 
@@ -471,8 +472,8 @@ void Checkers::startNewGame() {
 }
 
 void Checkers::resetBoard() {
-    for(int i = 0; i < board_length; ++i) {
-        for(int j = 0; j < board_length; ++j) {
+    for(int i = 0; i < number_of_squares_in_board; ++i) {
+        for(int j = 0; j < number_of_squares_in_board; ++j) {
             auto& currentPiece = board[i][j].second;
             if(j < 3 && (i + j) % 2) {
                 currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
@@ -504,15 +505,15 @@ void Checkers::resetBoard() {
     gameOverSoundPlayed = false;
     gameOverText->setDefaultTextColor(background_colour);
 
-    updateBoard();
+    update();
 }
 
 void Checkers::movePiece(QPointF center) {
     if(!pieceSelected)
         return;
 
-    for(int i = 0; i < board_length; ++i) {
-        for(int j = 0; j < board_length; ++j) {
+    for(int i = 0; i < number_of_squares_in_board; ++i) {
+        for(int j = 0; j < number_of_squares_in_board; ++j) {
             if(board[i][j].first->boundingRect().center() == center) {
                 if(isValid(selectedPiece, {i, j})) {
                     board[i][j].second = board[selectedPiece.first][selectedPiece.second].second;
@@ -527,7 +528,7 @@ void Checkers::movePiece(QPointF center) {
 
                     if(hasCapturedThisTurn && canCapture({i, j})) {
                         selectedPiece = {i, j};
-                        updateBoard();
+                        update();
                         return;
                     }
 
@@ -535,7 +536,7 @@ void Checkers::movePiece(QPointF center) {
 
                     endTurn();
 
-                    updateBoard();
+                    update();
                 }
                 return;
             }
