@@ -5,7 +5,6 @@
 #include "checkersview.h"
 #include "checkerspiece.h"
 #include "checkersai.h"
-#include "buttons.h"
 
 #include <QMainWindow>
 #include <QVector>
@@ -83,7 +82,5 @@ private:
     bool readyToStartFirstGame;
     CheckersAI ai;
     QPixmap pieceSprites;
-    PlayButton* playButton;
-    InfoButton* infoButton;
 };
 #endif // CHECKERS_H

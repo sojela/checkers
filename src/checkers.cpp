@@ -27,17 +27,7 @@ Checkers::Checkers(QWidget *parent)
     , gameOverSoundPlayed(false)
     , readyToStartFirstGame(false)
     , pieceSprites(":/images/checkers.png")
-    , playButton(new PlayButton)
-    , infoButton(new InfoButton)
 {
-    playButton->setTransformationMode(Qt::SmoothTransformation);
-    scene.addItem(playButton);
-    playButton->setZValue(button_z_height);
-
-    infoButton->setTransformationMode(Qt::SmoothTransformation);
-    scene.addItem(infoButton);
-    infoButton->setZValue(button_z_height);
-
     // set board dimensions
     board.resize(number_of_squares_in_board);
     for(int i = 0; i < number_of_squares_in_board; ++i)
@@ -79,6 +69,26 @@ Checkers::Checkers(QWidget *parent)
     view.setScene(&scene);
     view.show();
 
+    QString ss("background-color: #595959;"
+               "color: white;"
+               "selection-background-color: blue;");
+    menuBar()->setStyleSheet(ss);
+
+    QAction *newGame = new QAction("&New game", this);
+    QAction *credits = new QAction("&Credits", this);
+    QAction *quit = new QAction("&Quit", this);
+
+    QMenu *file;
+    file = menuBar()->addMenu("&File");
+    file->addAction(newGame);
+    file->addAction(credits);
+    file->addSeparator();
+    file->addAction(quit);
+
+    connect(newGame, &QAction::triggered, this, &Checkers::startNewGame);
+    connect(credits, &QAction::triggered, this, &Checkers::displayCredits);
+    connect(quit, &QAction::triggered, this, QApplication::quit);
+
     readyToStartFirstGame = true;
 }
 
@@ -116,20 +126,6 @@ void Checkers::update() {
                 currentPiece->setScale(scale);
             }
         }
-
-    int iconLength = std::min(scene.height(), scene.width()) * 0.10;
-    QPoint playButtonTopLeftCorner {(int) (scene.width() * 0.375) - (iconLength / 2), (boardTopLeftCornerY / 2) - (iconLength / 2)};
-    QPoint infoButtonTopLeftCorner {(int) (scene.width() * 0.625) - (iconLength / 2), playButtonTopLeftCorner.y()};
-
-    playButton->setPos(playButtonTopLeftCorner);
-    infoButton->setPos(infoButtonTopLeftCorner);
-
-    qreal scale = iconLength / playButton->boundingRect().height();
-    playButton->setScale(scale);
-
-    scale = iconLength / infoButton->boundingRect().height();
-    infoButton->setScale(scale);
-
 
     int winner = gameOver();
 
@@ -362,10 +358,6 @@ void Checkers::displayCredits() {
                             "Andi Peredri",
                             "https://creativecommons.org/licenses/by/3.0/",
                             "CC BY 3.0"});
-
-    imageCredits.push_back({"Play button by <a href=\"https://pixabay.com/users/Clker-Free-Vector-Images-3736/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=24836\">Clker-Free-Vector-Images</a> from <a href=\"https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=24836\">Pixabay</a>"});
-
-    imageCredits.push_back({"Info button by <a href=\"https://pixabay.com/users/WikimediaImages-1185597/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=875871\">WikimediaImages</a> from <a href=\"https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=875871\">Pixabay</a>"});
 
     QString creditsText = "<p>Created by Suraj Ojela</p>";
 
