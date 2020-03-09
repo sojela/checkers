@@ -1,7 +1,7 @@
 # Checkers
 A checkers game written in Qt5.
 
-<img src="screenshot.png" width="250"/>
+![Checkers screenshot](/screenshot.png?raw=true)
 
 ## Features
 - Simple AI
