@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     src/checkers.cpp \
     src/checkersai.cpp \
+    src/checkerslogic.cpp \
     src/checkerspiece.cpp \
     src/checkerssquare.cpp \
     src/checkersview.cpp \
@@ -27,6 +28,7 @@ SOURCES += \
 HEADERS += \
     src/checkers.h \
     src/checkersai.h \
+    src/checkerslogic.h \
     src/checkerspiece.h \
     src/checkerssquare.h \
     src/checkersview.h \

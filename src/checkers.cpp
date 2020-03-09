@@ -7,7 +7,6 @@
 Checkers::Checkers(QWidget *parent)
     : QMainWindow(parent)
     , number_of_squares_in_board(8)
-    , selectedPiece(-1, -1)
     , typeOfGame(PvAI)
     , difficulty(veryEasy)
     , ui(new Ui::Checkers)
@@ -106,7 +105,7 @@ void Checkers::update() {
             currentSquare->setRect(boardTopLeftCornerX + (gridSquareLength * i), boardTopLeftCornerY + (gridSquareLength * j), gridSquareLength, gridSquareLength);
 
             if((i + j) % 2) {
-                if(pieceSelected && currentSquare->boundingRect().center() == board[selectedPiece.first][selectedPiece.second].first->boundingRect().center())
+                if(checkersLogic->pieceSelected && currentSquare->boundingRect().center() == board[checkersLogic->selectedPiece.first][checkersLogic->selectedPiece.second].first->boundingRect().center())
                     currentSquare->setBrush(dark_square_highlight);
                 else if(currentSquare->brush() == dark_square_highlight)
                     currentSquare->setBrush(dark_square);
@@ -115,7 +114,7 @@ void Checkers::update() {
             if(board[i][j].second) {
                 auto currentPiece = board[i][j].second;
 
-                kinging(j, currentPiece);
+                kinging({i, j});
 
                 QRectF boundingRect {0, 0, pieceDiameter, pieceDiameter};
                 boundingRect.moveCenter(board[i][j].first->boundingRect().center());
@@ -127,7 +126,7 @@ void Checkers::update() {
             }
         }
 
-    int winner = gameOver();
+    int winner = checkersLogic->gameOver();
 
     // this is done every loop so that when the text is displayed it is centred
     int fontSize = std::min(scene.width(), scene.height()) / 20;
@@ -157,82 +156,6 @@ void Checkers::update() {
     }
 }
 
-bool Checkers::canMoveWithoutCapture(const std::pair<int, int>& pos) const {
-    std::pair<int, int> upLeft {pos.first - 1, pos.second - 1};
-    std::pair<int, int> upRight {pos.first + 1, pos.second - 1};
-    std::pair<int, int> downLeft {pos.first - 1, pos.second + 1};
-    std::pair<int, int> downRight {pos.first + 1, pos.second + 1};
-
-    if(upLeft.first >= 0 && upLeft.second >= 0)
-        if(isValid(pos, upLeft)) return true;
-
-    if(upRight.first < number_of_squares_in_board && upRight.second >= 0)
-        if(isValid(pos, upRight)) return true;
-
-    if(downLeft.first >= 0 && downLeft.second < number_of_squares_in_board)
-        if(isValid(pos, downLeft)) return true;
-
-    if(downRight.first < number_of_squares_in_board && downRight.second < number_of_squares_in_board)
-        if(isValid(pos, downRight)) return true;
-
-    return false;
-}
-
-bool Checkers::isMoveable(const std::shared_ptr<CheckersPiece>& piece) const {
-    for(int i = 0; i < number_of_squares_in_board; ++i) {
-        for(int j = 0; j < number_of_squares_in_board; ++j) {
-            if(board[i][j].first->boundingRect().contains(QPointF(piece->x(), piece->y()))) {
-                if(canCapture({i, j}))
-                    return true;
-
-                if(canMoveWithoutCapture({i, j}))
-                    return true;
-
-                return false;
-            }
-        }
-    }
-
-    return false;
-}
-
-int Checkers::gameOver() const {
-    int countPlayer1Pieces = 0;
-    int countPlayer2Pieces = 0;
-    int countPlayer1MoveablePieces = 0;
-    int countPlayer2MoveablePieces = 0;
-
-
-    for(auto& column : board) {
-        for(auto& square : column) {
-            if(square.second) {
-                if(square.second->typeOfPiece == player1Piece
-                    || square.second->typeOfPiece == player1KingPiece) {
-                    ++countPlayer1Pieces;
-
-                    if(isMoveable(square.second))
-                        ++countPlayer1MoveablePieces;
-                } else if(square.second->typeOfPiece == player2Piece
-                    || square.second->typeOfPiece == player2KingPiece) {
-                    ++countPlayer2Pieces;
-
-                    if(isMoveable(square.second))
-                        ++countPlayer2MoveablePieces;
-                }
-            }
-        }
-    }
-
-    if(countPlayer1Pieces == 0
-            || (countPlayer1MoveablePieces == 0 && player1Turn))
-        return 2;
-    else if(countPlayer2Pieces == 0
-            || (countPlayer2MoveablePieces == 0 && !player1Turn))
-        return 1;
-
-    return 0;
-}
-
 std::pair<int, int> Checkers::findPiece(const QPointF& pos) const {
     for(int i = 0; i < number_of_squares_in_board; ++i) {
         for(int j = 0; j < number_of_squares_in_board; ++j) {
@@ -247,57 +170,19 @@ std::pair<int, int> Checkers::findPiece(const QPointF& pos) const {
     return {-1, -1};
 }
 
-// assume pos has a piece
-bool Checkers::isCurrentPlayersPiece(const std::pair<int, int>& pos) const {
-    if(board[pos.first][pos.second].second->typeOfPiece == player1Piece ||
-            board[pos.first][pos.second].second->typeOfPiece == player1KingPiece) {
-        if(player1Turn)
-            return true;
-        else
-            return false;
-    }
-
-    // pos has a player two piece
-    if(player1Turn)
-        return false;
-    else
-        return true;
-}
-
 void Checkers::selectPiece(const QPointF& center) {
-    if(hasCapturedThisTurn)
+    if(checkersLogic->hasCapturedThisTurn)
         return;
 
     auto pos = findPiece(center);
     if(pos.first >= 0) {
-        if(!isCurrentPlayersPiece(pos))
+        if(!checkersLogic->isCurrentPlayersPiece(pos))
             return;
 
-        selectedPiece = pos;
-        pieceSelected = true;
+        checkersLogic->selectedPiece = pos;
+        checkersLogic->pieceSelected = true;
         update();
     }
-}
-
-bool Checkers::canCapture(const std::pair<int, int>& pos) const {
-    std::pair<int, int> upLeft {pos.first - 2, pos.second - 2};
-    std::pair<int, int> upRight {pos.first + 2, pos.second - 2};
-    std::pair<int, int> downLeft {pos.first - 2, pos.second + 2};
-    std::pair<int, int> downRight {pos.first + 2, pos.second + 2};
-
-    if(upLeft.first >= 0 && upLeft.second >= 0)
-        if(isValid(pos, upLeft)) return true;
-
-    if(upRight.first < number_of_squares_in_board && upRight.second >= 0)
-        if(isValid(pos, upRight)) return true;
-
-    if(downLeft.first >= 0 && downLeft.second < number_of_squares_in_board)
-        if(isValid(pos, downLeft)) return true;
-
-    if(downRight.first < number_of_squares_in_board && downRight.second < number_of_squares_in_board)
-        if(isValid(pos, downRight)) return true;
-
-    return false;
 }
 
 void Checkers::removeCapturedPiece(const std::pair<int, int>& start, const std::pair<int, int>& end) {
@@ -407,31 +292,26 @@ void Checkers::displayCredits() {
 }
 
 void Checkers::endTurn() {
-    hasCapturedThisTurn = false;
+    checkersLogic->endTurn();
 
-    if(player1Turn)
-        player1Turn = false;
-    else
-        player1Turn = true;
-
-    if(!player1Turn && typeOfGame == PvAI)
+    if(!checkersLogic->player1Turn && typeOfGame == PvAI)
         player2AI();
 }
 
 void Checkers::player2AI() {
-    if(gameOver())
+    if(checkersLogic->gameOver())
         return;
 
     std::pair<std::pair<int, int>, std::pair<int, int>> move;
 
     if(difficulty == veryEasy) {
-        move = ai.calculateMoveVeryEasy(board);
+        move = ai.calculateMoveVeryEasy(*checkersLogic);
         selectPiece(QPointF(board[move.first.first][move.first.second].second->x(),
                             board[move.first.first][move.first.second].second->y()));
         movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
 
-        while(hasCapturedThisTurn) {
-            move = ai.calculateMoveVeryEasy(board);
+        while(checkersLogic->hasCapturedThisTurn) {
+            move = ai.calculateMoveVeryEasy(*checkersLogic);
             selectPiece(QPointF(board[move.first.first][move.first.second].second->x(),
                                 board[move.first.first][move.first.second].second->y()));
             movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
@@ -439,18 +319,20 @@ void Checkers::player2AI() {
     }
 }
 
-void Checkers::kinging(int height, std::shared_ptr<CheckersPiece> piece) {
-    if(height == 0 && piece->typeOfPiece == player1Piece) {
-        piece->typeOfPiece = player1KingPiece;
-        QRect rect {32, 0, 32, 32};
-        QPixmap cropped = pieceSprites.copy(rect);
-        piece->setPixmap(cropped);
-        kingingSound.play();
-    } else if(height == number_of_squares_in_board - 1 && piece->typeOfPiece == player2Piece) {
-        piece->typeOfPiece = player2KingPiece;
-        QRect rect {0, 0, 32, 32};
-        QPixmap cropped = pieceSprites.copy(rect);
-        piece->setPixmap(cropped);
+void Checkers::kinging(std::pair<int, int> pos) {
+    if(checkersLogic->kinging(pos)) {
+        board[pos.first][pos.second].second->typeOfPiece = checkersLogic->board[pos.first][pos.second];
+
+        if(board[pos.first][pos.second].second->typeOfPiece == player1KingPiece) {
+            QRect rect {32, 0, 32, 32};
+            QPixmap cropped = pieceSprites.copy(rect);
+            board[pos.first][pos.second].second->setPixmap(cropped);
+        } else {
+            QRect rect {0, 0, 32, 32};
+            QPixmap cropped = pieceSprites.copy(rect);
+            board[pos.first][pos.second].second->setPixmap(cropped);
+        }
+
         kingingSound.play();
     }
 }
@@ -490,9 +372,10 @@ void Checkers::resetBoard() {
         }
     }
 
-    pieceSelected = false;
-    player1Turn = true;
-    hasCapturedThisTurn = false;
+    delete checkersLogic;
+    checkersLogic = new CheckersLogic(number_of_squares_in_board);
+    checkersLogic->setBoard(board);
+
     gameOverSoundPlayed = false;
     gameOverText->setDefaultTextColor(background_colour);
 
@@ -500,175 +383,36 @@ void Checkers::resetBoard() {
 }
 
 void Checkers::movePiece(const QPointF& center) {
-    if(!pieceSelected)
+    if(!checkersLogic->pieceSelected)
         return;
 
     for(int i = 0; i < number_of_squares_in_board; ++i) {
         for(int j = 0; j < number_of_squares_in_board; ++j) {
             if(board[i][j].first->boundingRect().center() == center) {
-                if(isValid(selectedPiece, {i, j})) {
+                auto selectedPiece = checkersLogic->selectedPiece;
+                if(checkersLogic->movePiece({i, j})) {
                     board[i][j].second = board[selectedPiece.first][selectedPiece.second].second;
                     board[selectedPiece.first][selectedPiece.second].second = nullptr;
 
+                    if(abs(i - selectedPiece.first) == 2)
+                        removeCapturedPiece(selectedPiece, {i, j});
+
                     moveSound.play();
 
-                    if(abs(i - selectedPiece.first) == 2) {
-                        removeCapturedPiece(selectedPiece, {i, j});
-                        hasCapturedThisTurn = true;
-                    }
-
-                    if(hasCapturedThisTurn && canCapture({i, j})) {
-                        selectedPiece = {i, j};
+                    if(checkersLogic->hasCapturedThisTurn && checkersLogic->canCapture({i, j})) {
                         update();
                         return;
-                    }
-
-                    pieceSelected = false;
-
-                    endTurn();
+                    } else
+                        endTurn();
 
                     update();
                 }
-                return;
             }
         }
     }
-}
-
-bool Checkers::canMoveForwardsWithoutCapture(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
-    if(hasCapturedThisTurn)
-        return false;
-
-    if(player1Turn) {
-        if(start.second - destination.second == 1 && abs(destination.first - start.first) == 1)
-            return true;
-    } else if(destination.second - start.second == 1 && abs(destination.first - start.first) == 1)
-        return true;
-
-    return false;
-}
-
-bool Checkers::canMoveBackwardWithoutCapture(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
-    if(hasCapturedThisTurn)
-        return false;
-
-    if(player1Turn) {
-        if(board[start.first][start.second].second->typeOfPiece == player1KingPiece
-            && destination.second - start.second == 1
-            && abs(destination.first - start.first) == 1)
-            return true;
-    } else {
-        if(board[start.first][start.second].second->typeOfPiece == player2KingPiece
-            && start.second - destination.second == 1
-            && abs(destination.first - start.first) == 1)
-            return true;
-    }
-
-    return false;
-}
-
-bool Checkers::canCaptureForwards(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
-    if(player1Turn) {
-        if(start.second - destination.second == 2 && abs(destination.first - start.first) == 2) {
-            std::pair<int, int> enemyPos;
-            if(destination.first > start.first)
-                enemyPos = {start.first + 1, start.second - 1};
-            else
-                enemyPos = {start.first - 1, start.second - 1};
-
-            if(!board[enemyPos.first][enemyPos.second].second)
-                // no piece to capture
-                return false;
-
-            if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
-                return true;
-            }
-        }
-    } else {
-        if(destination.second - start.second == 2 && abs(destination.first - start.first) == 2) {
-            std::pair<int, int> enemyPos;
-            if(destination.first > start.first)
-                enemyPos = {start.first + 1, start.second + 1};
-            else
-                enemyPos = {start.first - 1, start.second + 1};
-
-            if(!board[enemyPos.first][enemyPos.second].second)
-                // no piece to capture
-                return false;
-
-            if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-bool Checkers::canCaptureBackwards(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
-    if(player1Turn) {
-        if(board[start.first][start.second].second->typeOfPiece == player1KingPiece) {
-            if(destination.second - start.second == 2 && abs(destination.first - start.first) == 2) {
-                std::pair<int, int> enemyPos;
-                if(destination.first > start.first)
-                    enemyPos = {start.first + 1, start.second + 1};
-                else
-                    enemyPos = {start.first - 1, start.second + 1};
-
-                if(!board[enemyPos.first][enemyPos.second].second)
-                    // no piece to capture
-                    return false;
-
-                if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
-                    return true;
-                }
-            }
-        }
-    } else {
-        if(board[start.first][start.second].second->typeOfPiece == player2KingPiece) {
-            if(start.second - destination.second == 2 && abs(destination.first - start.first) == 2) {
-                std::pair<int, int> enemyPos;
-                if(destination.first > start.first)
-                    enemyPos = {start.first + 1, start.second - 1};
-                else
-                    enemyPos = {start.first - 1, start.second - 1};
-
-                if(!board[enemyPos.first][enemyPos.second].second)
-                    // no piece to capture
-                    return false;
-
-                if(!isCurrentPlayersPiece({enemyPos.first, enemyPos.second})) {
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
-// assume coordinates are valid
-bool Checkers::isValid(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
-    // no piece to move
-    if(!board[start.first][start.second].second)
-        return false;
-
-    // piece at destination
-    if(board[destination.first][destination.second].second)
-        return false;
-
-    if(!isCurrentPlayersPiece(start))
-        return false;
-
-    if(canMoveForwardsWithoutCapture(start, destination)
-    || canMoveBackwardWithoutCapture(start, destination)
-    || canCaptureForwards(start, destination)
-    || canCaptureBackwards(start, destination))
-        return true;
-
-    return false;
 }
 
 Checkers::~Checkers() {
+    delete checkersLogic;
     delete ui;
 }

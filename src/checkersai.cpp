@@ -7,18 +7,18 @@
 
 extern Checkers* MainWindow;
 
-std::pair<std::pair<int, int>, std::pair<int, int>> CheckersAI::calculateMoveVeryEasy(const QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>>& board) {
+std::pair<std::pair<int, int>, std::pair<int, int>> CheckersAI::calculateMoveVeryEasy(CheckersLogic currentGameState) {
     std::vector<std::pair<int, int>> moveablePieces;
     std::pair<int, int> randomPiece;
 
     srand(time(NULL));
 
-    if(MainWindow->hasCapturedThisTurn) {
-        randomPiece = MainWindow->selectedPiece;
+    if(currentGameState.hasCapturedThisTurn) {
+        randomPiece = currentGameState.selectedPiece;
     } else {
         for(int i = 0; i < MainWindow->number_of_squares_in_board; ++i) {
             for(int j = 0; j < MainWindow->number_of_squares_in_board; ++j) {
-                if(board[i][j].second && MainWindow->isMoveable(board[i][j].second)) {
+                if(currentGameState.isMoveable({i, j})) {
                     moveablePieces.push_back({i, j});
                 }
             }
@@ -33,7 +33,7 @@ std::pair<std::pair<int, int>, std::pair<int, int>> CheckersAI::calculateMoveVer
 
     for(int i = 0; i < MainWindow->number_of_squares_in_board; ++i) {
         for(int j = 0; j < MainWindow->number_of_squares_in_board; ++j) {
-            if(MainWindow->isValid(randomPiece, {i, j})) {
+            if(currentGameState.isValid(randomPiece, {i, j})) {
                 availableMovesForChosenPiece.push_back({i, j});
             }
         }
