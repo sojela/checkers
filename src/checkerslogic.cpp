@@ -1,5 +1,7 @@
 #include "checkerslogic.h"
 
+#include <cstdlib>
+
 CheckersLogic::CheckersLogic(int numberOfSquaresInBoard)
         : number_of_squares_in_board(numberOfSquaresInBoard)
         , selectedPiece(-1, -1)
@@ -127,13 +129,10 @@ bool CheckersLogic::isMoveable(const std::pair<int, int>& piecePos) const {
     return false;
 }
 
-void CheckersLogic::setBoard(const QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>>& newBoard) {
+void CheckersLogic::setBoard(const std::vector<std::vector<int> > &newBoard) {
     for(int i = 0; i < number_of_squares_in_board; ++i) {
         for(int j = 0; j < number_of_squares_in_board; ++j) {
-            if(!newBoard[i][j].second)
-                board[i][j] = empty;
-            else
-                board[i][j] = newBoard[i][j].second->typeOfPiece;
+            board[i][j] = newBoard[i][j];
         }
     }
 }

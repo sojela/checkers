@@ -1,10 +1,6 @@
 #ifndef CHECKERSLOGIC_H
 #define CHECKERSLOGIC_H
 
-#include "checkerssquare.h"
-#include "checkerspiece.h"
-
-#include <QVector>
 #include <vector>
 
 enum {empty, player1Piece, player2Piece, player1KingPiece, player2KingPiece};
@@ -16,7 +12,7 @@ public:
     bool canCapture(const std::pair<int, int>& pos) const;
     bool canMoveWithoutCapture(const std::pair<int, int>& pos) const;
     bool isMoveable(const std::pair<int, int>& piecePos) const;
-    void setBoard(const QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>>& newBoard);
+    void setBoard(const std::vector<std::vector<int>>& newBoard);
     bool canCaptureForwards(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
     bool canCaptureBackwards(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
     bool canMoveForwardsWithoutCapture(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
