@@ -27,6 +27,7 @@ public:
     int gameOver() const;
     void endTurn();
     void removeCapturedPiece(const std::pair<int, int>& start, const std::pair<int, int>& end);
+    void resetBoard();
 
     const int number_of_squares_in_board;
     std::vector<std::vector<int>> board;

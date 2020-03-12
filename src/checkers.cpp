@@ -26,6 +26,7 @@ Checkers::Checkers(QWidget *parent)
     , gameOverSoundPlayed(false)
     , readyToStartFirstGame(false)
     , pieceSprites(":/images/checkers.png")
+    , checkersLogic(new CheckersLogic(number_of_squares_in_board))
 {
     // set board dimensions
     board.resize(number_of_squares_in_board);
@@ -343,6 +344,8 @@ void Checkers::startNewGame() {
 }
 
 void Checkers::resetBoard() {
+    checkersLogic->resetBoard();
+
     QRect player1SpriteRect {96, 0, 32, 32};
     QPixmap player1Sprite = pieceSprites.copy(player1SpriteRect);
 
@@ -352,29 +355,21 @@ void Checkers::resetBoard() {
     for(int i = 0; i < number_of_squares_in_board; ++i) {
         for(int j = 0; j < number_of_squares_in_board; ++j) {
             auto& currentPiece = board[i][j].second;
-            if(j < 3 && (i + j) % 2) {
+            if(checkersLogic->board[i][j] != empty) {
                 currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
-                currentPiece->typeOfPiece = player2Piece;
+                currentPiece->typeOfPiece = checkersLogic->board[i][j];
+
                 scene.addItem(currentPiece.get());
-                currentPiece->setPixmap(player2Sprite);
                 currentPiece->setTransformationMode(Qt::SmoothTransformation);
-            } else if(j > 4 && (i + j) % 2) {
-                currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
-                currentPiece->typeOfPiece = player1Piece;
-                scene.addItem(currentPiece.get());
-                currentPiece->setPixmap(player1Sprite);
-                currentPiece->setTransformationMode(Qt::SmoothTransformation);
+                if(currentPiece->typeOfPiece == player1Piece)
+                    currentPiece->setPixmap(player1Sprite);
+                else
+                    currentPiece->setPixmap(player2Sprite);
+                currentPiece->setZValue(piece_z_height);
             } else
                 currentPiece = nullptr;
-
-            if(currentPiece)
-                currentPiece->setZValue(piece_z_height);
         }
     }
-
-    delete checkersLogic;
-    checkersLogic = new CheckersLogic(number_of_squares_in_board);
-    checkersLogic->setBoard(board);
 
     gameOverSoundPlayed = false;
     gameOverText->setDefaultTextColor(background_colour);

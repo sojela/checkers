@@ -29,6 +29,23 @@ void CheckersLogic::removeCapturedPiece(const std::pair<int, int>& start, const 
     board[captured.first][captured.second] = empty;
 }
 
+void CheckersLogic::resetBoard() {
+    for(int i = 0; i < number_of_squares_in_board; ++i) {
+        for(int j = 0; j < number_of_squares_in_board; ++j) {
+            if(j < 3 && (i + j) % 2)
+                board[i][j] = player2Piece;
+            else if(j > (number_of_squares_in_board - 4) && (i + j) % 2)
+                board[i][j] = player1Piece;
+            else
+                board[i][j] = empty;
+        }
+    }
+
+    pieceSelected = false;
+    player1Turn = true;
+    hasCapturedThisTurn = false;
+}
+
 void CheckersLogic::endTurn() {
     hasCapturedThisTurn = false;
 
