@@ -5,9 +5,6 @@
 CheckersLogic::CheckersLogic(int numberOfSquaresInBoard)
         : number_of_squares_in_board(numberOfSquaresInBoard)
         , selectedPiece(-1, -1)
-        , pieceSelected(false)
-        , player1Turn(true)
-        , hasCapturedThisTurn(false)
 {
     // set board dimensions
     board.resize(number_of_squares_in_board);
@@ -319,7 +316,7 @@ bool CheckersLogic::canMoveBackwardWithoutCapture(const std::pair<int, int> &sta
     return false;
 }
 
-bool CheckersLogic::kinging(std::pair<int, int> pos) {
+bool CheckersLogic::kinging(const std::pair<int, int> &pos) {
     if(pos.second == 0 && board[pos.first][pos.second] == player1Piece) {
         board[pos.first][pos.second] = player1KingPiece;
         return true;

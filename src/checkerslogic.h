@@ -17,7 +17,7 @@ public:
     bool canCaptureBackwards(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
     bool canMoveForwardsWithoutCapture(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
     bool canMoveBackwardWithoutCapture(const std::pair<int, int>& start, const std::pair<int, int>& destination) const;
-    bool kinging(std::pair<int, int> pos);
+    bool kinging(const std::pair<int, int>& pos);
     bool isCurrentPlayersPiece(const std::pair<int, int>& pos) const;
     bool movePiece(const std::pair<int, int>& destination);
     int gameOver() const;
