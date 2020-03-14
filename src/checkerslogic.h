@@ -24,6 +24,7 @@ public:
     void endTurn();
     void removeCapturedPiece(const std::pair<int, int>& start, const std::pair<int, int>& end);
     void resetBoard();
+    bool selectPiece(const std::pair<int, int>& pos);
 
     const int number_of_squares_in_board;
     std::vector<std::vector<int>> board;

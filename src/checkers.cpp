@@ -139,20 +139,9 @@ std::pair<int, int> Checkers::findPiece(const QPointF& pos) const {
         return {-1, -1};
 }
 
-void Checkers::selectPiece(const QPointF& center) {
-    if(checkersLogic->hasCapturedThisTurn)
-        return;
-
-    auto pos = findPiece(center);
-    if(pos.first >= 0) {
-        if(!checkersLogic->isCurrentPlayersPiece(pos)
-            || !checkersLogic->isMoveable(pos))
-            return;
-
-        checkersLogic->selectedPiece = pos;
-        checkersLogic->pieceSelected = true;
+void Checkers::selectPiece(const QPointF& pos) {
+    if(checkersLogic->selectPiece(findPiece(pos)))
         update();
-    }
 }
 
 void Checkers::removeCapturedPiece(const std::pair<int, int>& start, const std::pair<int, int>& end) {

@@ -45,6 +45,16 @@ void CheckersLogic::resetBoard() {
     hasCapturedThisTurn = false;
 }
 
+bool CheckersLogic::selectPiece(const std::pair<int, int>& pos) {
+    if(isMoveable(pos)) {
+        selectedPiece = pos;
+        pieceSelected = true;
+
+        return true;
+    } else
+        return false;
+}
+
 void CheckersLogic::endTurn() {
     hasCapturedThisTurn = false;
 

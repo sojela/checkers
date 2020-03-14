@@ -36,7 +36,7 @@ public:
     Difficulty difficulty;
 
 private:
-    std::pair<int, int> findPiece(const QPointF& center) const;
+    std::pair<int, int> findPiece(const QPointF& pos) const;
     void endTurn();
     void player2AI();
     void kinging(std::pair<int, int> pos);
