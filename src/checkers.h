@@ -17,8 +17,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Checkers; }
 QT_END_NAMESPACE
 
-class Checkers : public QMainWindow
-{
+class Checkers : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -42,8 +41,9 @@ private:
     void player2AI();
     void kinging(std::pair<int, int> pos);
     void removeCapturedPiece(const std::pair<int, int>& start, const std::pair<int, int>& end);
+    void init();
 
-    Ui::Checkers *ui;
+    Ui::Checkers* ui;
     const QColor light_square;
     const QColor dark_square;
     const QColor dark_square_highlight;
@@ -60,13 +60,13 @@ private:
     QGraphicsScene scene;
     CheckersView view;
     QGraphicsTextItem* gameOverText;
-    QMediaPlayer moveSound;
-    QMediaPlayer kingingSound;
-    QMediaPlayer gameOverSound;
+    QMediaPlayer* moveSound;
+    QMediaPlayer* kingingSound;
+    QMediaPlayer* gameOverSound;
     bool gameOverSoundPlayed;
-    bool readyToStartFirstGame;
-    CheckersAI ai;
-    QPixmap pieceSprites;
+    bool startedFirstGame;
+    CheckersAI* ai;
+    QPixmap* pieceSprites;
     CheckersLogic* checkersLogic;
 };
 #endif // CHECKERS_H

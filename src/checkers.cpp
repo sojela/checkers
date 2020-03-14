@@ -22,41 +22,11 @@ Checkers::Checkers(QWidget *parent)
     , square_z_height(0)
     , piece_z_height(1)
     , button_z_height(2)
-    , gameOverText(new QGraphicsTextItem)
     , gameOverSoundPlayed(false)
-    , readyToStartFirstGame(false)
-    , pieceSprites(":/images/checkers.png")
+    , startedFirstGame(false)
+    , ai(nullptr)
     , checkersLogic(new CheckersLogic(number_of_squares_in_board))
 {
-    // set board dimensions
-    board.resize(number_of_squares_in_board);
-    for(int i = 0; i < number_of_squares_in_board; ++i)
-        board[i].resize(number_of_squares_in_board);
-
-    // create board
-    for(int i = 0; i < number_of_squares_in_board; ++i) {
-        for(int j = 0; j < number_of_squares_in_board; ++j) {
-            auto& currentSquare = board[i][j].first;
-            currentSquare = std::shared_ptr<CheckersSquare> (new CheckersSquare);
-            currentSquare->setZValue(square_z_height);
-            currentSquare->setPen(Qt::NoPen);
-            scene.addItem(currentSquare.get());
-
-            if((i + j) % 2)
-                currentSquare->setBrush(dark_square);
-            else
-                currentSquare->setBrush(light_square);
-        }
-    }
-
-    kingingSound.setMedia(QUrl("qrc:/sounds/kinged.mp3"));
-    moveSound.setMedia(QUrl("qrc:/sounds/move.mp3"));
-
-    resetBoard();
-
-    gameOverText->setDefaultTextColor(background_colour);
-    scene.addItem(gameOverText);
-
     scene.setBackgroundBrush(background_colour);
 
     ui->setupUi(this);
@@ -88,11 +58,12 @@ Checkers::Checkers(QWidget *parent)
     connect(newGame, &QAction::triggered, this, &Checkers::startNewGame);
     connect(credits, &QAction::triggered, this, &Checkers::displayCredits);
     connect(quit, &QAction::triggered, this, QApplication::quit);
-
-    readyToStartFirstGame = true;
 }
 
 void Checkers::update() {
+    if(!startedFirstGame)
+        return;
+
     double fractionOfWindowToUse = 0.75;
     int boardLength = std::min(scene.height(), scene.width()) * fractionOfWindowToUse;
     int boardTopLeftCornerX = (scene.width() - boardLength) / 2;
@@ -142,16 +113,16 @@ void Checkers::update() {
     if(winner != 0) {
         gameOverText->setDefaultTextColor(text_colour);
 
-        if(!gameOverSoundPlayed && readyToStartFirstGame) {
+        if(!gameOverSoundPlayed && startedFirstGame) {
             if(winner == 1)
-                gameOverSound.setMedia(QUrl("qrc:/sounds/victory.mp3"));
+                gameOverSound->setMedia(QUrl("qrc:/sounds/victory.mp3"));
             else
-                gameOverSound.setMedia(QUrl("qrc:/sounds/defeat.mp3"));
+                gameOverSound->setMedia(QUrl("qrc:/sounds/defeat.mp3"));
 
-            moveSound.stop();
-            kingingSound.stop();
+            moveSound->stop();
+            kingingSound->stop();
 
-            gameOverSound.play();
+            gameOverSound->play();
             gameOverSoundPlayed = true;
         }
     }
@@ -200,6 +171,45 @@ void Checkers::removeCapturedPiece(const std::pair<int, int>& start, const std::
         captured.second = start.second - 1;
 
     board[captured.first][captured.second].second = nullptr;
+}
+
+void Checkers::init() {
+    // set board dimensions
+    board.resize(number_of_squares_in_board);
+    for(int i = 0; i < number_of_squares_in_board; ++i)
+        board[i].resize(number_of_squares_in_board);
+
+    // create board
+    for(int i = 0; i < number_of_squares_in_board; ++i) {
+        for(int j = 0; j < number_of_squares_in_board; ++j) {
+            auto& currentSquare = board[i][j].first;
+            currentSquare = std::shared_ptr<CheckersSquare> (new CheckersSquare);
+            currentSquare->setZValue(square_z_height);
+            currentSquare->setPen(Qt::NoPen);
+            scene.addItem(currentSquare.get());
+
+            if((i + j) % 2)
+                currentSquare->setBrush(dark_square);
+            else
+                currentSquare->setBrush(light_square);
+        }
+    }
+
+    kingingSound = new QMediaPlayer;
+    moveSound = new QMediaPlayer;
+    gameOverSound = new QMediaPlayer;
+
+    kingingSound->setMedia(QUrl("qrc:/sounds/kinged.mp3"));
+    moveSound->setMedia(QUrl("qrc:/sounds/move.mp3"));
+
+    gameOverText = new QGraphicsTextItem;
+
+    gameOverText->setDefaultTextColor(background_colour);
+    scene.addItem(gameOverText);
+
+    pieceSprites = new QPixmap(":/images/checkers.png");
+
+    startedFirstGame = true;
 }
 
 void Checkers::displayCredits() {
@@ -303,16 +313,19 @@ void Checkers::player2AI() {
     if(checkersLogic->gameOver())
         return;
 
+    if(!ai)
+        ai = new CheckersAI;
+
     std::pair<std::pair<int, int>, std::pair<int, int>> move;
 
     if(difficulty == veryEasy) {
-        move = ai.calculateMoveVeryEasy(*checkersLogic);
+        move = ai->calculateMoveVeryEasy(*checkersLogic);
         selectPiece(QPointF(board[move.first.first][move.first.second].second->x(),
                             board[move.first.first][move.first.second].second->y()));
         movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
 
         while(checkersLogic->hasCapturedThisTurn) {
-            move = ai.calculateMoveVeryEasy(*checkersLogic);
+            move = ai->calculateMoveVeryEasy(*checkersLogic);
             selectPiece(QPointF(board[move.first.first][move.first.second].second->x(),
                                 board[move.first.first][move.first.second].second->y()));
             movePiece(board[move.second.first][move.second.second].first->boundingRect().center());
@@ -326,15 +339,15 @@ void Checkers::kinging(std::pair<int, int> pos) {
 
         if(board[pos.first][pos.second].second->typeOfPiece == player1KingPiece) {
             QRect rect {32, 0, 32, 32};
-            QPixmap cropped = pieceSprites.copy(rect);
+            QPixmap cropped = pieceSprites->copy(rect);
             board[pos.first][pos.second].second->setPixmap(cropped);
         } else {
             QRect rect {0, 0, 32, 32};
-            QPixmap cropped = pieceSprites.copy(rect);
+            QPixmap cropped = pieceSprites->copy(rect);
             board[pos.first][pos.second].second->setPixmap(cropped);
         }
 
-        kingingSound.play();
+        kingingSound->play();
     }
 }
 
@@ -344,13 +357,16 @@ void Checkers::startNewGame() {
 }
 
 void Checkers::resetBoard() {
+    if(!startedFirstGame)
+        init();
+
     checkersLogic->resetBoard();
 
     QRect player1SpriteRect {96, 0, 32, 32};
-    QPixmap player1Sprite = pieceSprites.copy(player1SpriteRect);
+    QPixmap player1Sprite = pieceSprites->copy(player1SpriteRect);
 
     QRect player2SpriteRect {64, 0, 32, 32};
-    QPixmap player2Sprite = pieceSprites.copy(player2SpriteRect);
+    QPixmap player2Sprite = pieceSprites->copy(player2SpriteRect);
 
     for(int i = 0; i < number_of_squares_in_board; ++i) {
         for(int j = 0; j < number_of_squares_in_board; ++j) {
@@ -392,7 +408,7 @@ void Checkers::movePiece(const QPointF& center) {
                     if(abs(i - selectedPiece.first) == 2)
                         removeCapturedPiece(selectedPiece, {i, j});
 
-                    moveSound.play();
+                    moveSound->play();
 
                     if(checkersLogic->hasCapturedThisTurn && checkersLogic->canCapture({i, j})) {
                         update();
@@ -409,5 +425,7 @@ void Checkers::movePiece(const QPointF& center) {
 
 Checkers::~Checkers() {
     delete checkersLogic;
+    delete pieceSprites;
     delete ui;
+    delete ai;
 }
