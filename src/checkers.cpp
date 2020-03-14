@@ -129,17 +129,14 @@ void Checkers::update() {
 }
 
 std::pair<int, int> Checkers::findPiece(const QPointF& pos) const {
-    for(int i = 0; i < number_of_squares_in_board; ++i) {
-        for(int j = 0; j < number_of_squares_in_board; ++j) {
-            if(!board[i][j].second)
-                continue;
+    auto topLeft = board[0][0].first;
+    int x = (pos.x() - topLeft->boundingRect().left()) / topLeft->boundingRect().width();
+    int y = (pos.y() - topLeft->boundingRect().top()) / topLeft->boundingRect().height();
 
-            if(board[i][j].first->contains(pos))
-                return {i, j};
-        }
-    }
-
-    return {-1, -1};
+    if(board[x][y].second)
+        return {x, y};
+    else
+        return {-1, -1};
 }
 
 void Checkers::selectPiece(const QPointF& center) {
@@ -148,7 +145,8 @@ void Checkers::selectPiece(const QPointF& center) {
 
     auto pos = findPiece(center);
     if(pos.first >= 0) {
-        if(!checkersLogic->isCurrentPlayersPiece(pos))
+        if(!checkersLogic->isCurrentPlayersPiece(pos)
+            || !checkersLogic->isMoveable(pos))
             return;
 
         checkersLogic->selectedPiece = pos;
