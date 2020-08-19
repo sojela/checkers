@@ -5,6 +5,9 @@
 CheckersLogic::CheckersLogic(int numberOfSquaresInBoard)
         : number_of_squares_in_board(numberOfSquaresInBoard)
         , selectedPiece(-1, -1)
+        , pieceSelected(false)
+        , player1Turn(true)
+        , hasCapturedThisTurn(false)
 {
     // set board dimensions
     board.resize(number_of_squares_in_board);
@@ -64,7 +67,8 @@ void CheckersLogic::endTurn() {
         player1Turn = true;
 }
 
-bool CheckersLogic::isValid(const std::pair<int, int>& start, const std::pair<int, int> &destination) const {
+// assume valid coordinates
+bool CheckersLogic::isValid(const std::pair<int, int>& start, const std::pair<int, int>& destination) const {
     if(board[start.first][start.second] == empty)
         return false;
 
@@ -220,7 +224,8 @@ bool CheckersLogic::canCaptureBackwards(const std::pair<int, int> &start, const 
     return false;
 }
 
-bool CheckersLogic::isCurrentPlayersPiece(const std::pair<int, int> &pos) const {
+// assume pos has a piece
+bool CheckersLogic::isCurrentPlayersPiece(const std::pair<int, int>& pos) const {
     if(board[pos.first][pos.second] == player1Piece ||
             board[pos.first][pos.second] == player1KingPiece) {
         if(player1Turn)
