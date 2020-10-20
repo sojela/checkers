@@ -411,8 +411,11 @@ void Checkers::movePiece(const QPointF& center) {
 }
 
 Checkers::~Checkers() {
-    delete checkersLogic;
-    delete pieceSprites;
     delete ui;
+    delete moveSound;
+    delete kingingSound;
+    delete gameOverSound;
     delete ai;
+    delete pieceSprites;
+    delete checkersLogic;
 }
