@@ -37,6 +37,7 @@ Checkers::Checkers(QWidget *parent)
     view.setViewport(this);
     view.setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     view.setScene(&scene);
+    view.setWindowTitle("Checkers");
     view.show();
 
     QString ss("background-color: #595959;"
