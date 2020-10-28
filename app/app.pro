@@ -32,7 +32,8 @@ HEADERS += \
     src/checkerspiece.h \
     src/checkerssquare.h \
     src/checkersview.h \
-    src/gameoptions.h
+    src/gameoptions.h \
+    src/types.h
 
 FORMS += \
     src/checkers.ui \

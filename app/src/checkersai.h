@@ -7,10 +7,19 @@
 
 #include <QVector>
 #include <utility>
+#include <vector>
+
+struct Move {
+    Coords start;
+    Coords destination;
+};
 
 class CheckersAI {
 public:
-    std::pair<std::pair<int, int>, std::pair<int, int>> calculateMoveVeryEasy(CheckersLogic currentGameState);
+    Move calculateMoveVeryEasy(const CheckersLogic& currentGameState);
+private:
+    std::vector<Coords> calculateAllMovesForPiece(const Coords& piece);
+    int randomNumber(unsigned int max);
 };
 
 #endif // CHECKERSAI_H

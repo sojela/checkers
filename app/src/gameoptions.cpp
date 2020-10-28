@@ -34,12 +34,11 @@ GameOptions::GameOptions(QWidget *parent)
     ui->difficulty->addItem(veryEasyDifficulty);
 }
 
-GameOptions::~GameOptions() {
-    delete ui;
-}
+GameOptions::~GameOptions() { delete ui; }
 
 void GameOptions::on_start_clicked() {
-    if(ui->gameType->currentData(0) == localTwoPlayer)
+    bool isPvP = ui->gameType->currentData(0) == localTwoPlayer;
+    if(isPvP)
         MainWindow->typeOfGame = localPvP;
     else
         MainWindow->typeOfGame = PvAI;

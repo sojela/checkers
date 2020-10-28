@@ -4,14 +4,12 @@
 #include "checkersview.h"
 #include "checkersai.h"
 #include "checkerslogic.h"
+#include "types.h"
 
 #include <QMainWindow>
 #include <QVector>
 #include <QGraphicsScene>
 #include <QMediaPlayer>
-
-enum TypeOfGame {localPvP, PvAI};
-enum Difficulty {veryEasy};
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Checkers; }
@@ -25,9 +23,8 @@ public:
     ~Checkers();
     void selectPiece(const QPointF& center);
     void movePiece(const QPointF& center);
-    void update();
+    void resize();
     void displayCredits();
-
     void startNewGame();
     void resetBoard();
 
@@ -36,13 +33,22 @@ public:
     Difficulty difficulty;
 
 private:
-    std::pair<int, int> findPiece(const QPointF& pos) const;
-    void endTurn();
+    Coords findPiece(const QPointF& pos) const;
+    Coords findSquare(const QPointF& pos) const;
     void player2AI();
-    void kinging(std::pair<int, int> pos);
-    void removeCapturedPiece(const std::pair<int, int>& start, const std::pair<int, int>& end);
+    void kinging(Coords pos);
+    void removeCapturedPiece(const Coords& start, const Coords& end);
     void init();
+    void update();
+    void updateGameOverTextSizeAndPos();
+    void stopSounds();
 
+    struct BoardSquare {
+        std::shared_ptr<CheckersSquare> square;
+        std::shared_ptr<CheckersPiece> piece;
+    };
+
+    QVector<QVector<BoardSquare>> board;
     Ui::Checkers* ui;
     const QColor light_square;
     const QColor dark_square;
@@ -52,21 +58,21 @@ private:
     const QColor player_2_colour_regular;
     const QColor player_2_colour_king;
     const QColor background_colour;
-    const QColor text_colour;
+    const QColor visible_text_colour;
     const qreal square_z_height;
     const qreal piece_z_height;
-    const qreal button_z_height;
-    QVector<QVector<std::pair<std::shared_ptr<CheckersSquare>, std::shared_ptr<CheckersPiece>>>> board;
+    const double fractionOfWindowToUse;
+    const double pieceSizeFraction;
     QGraphicsScene scene;
     CheckersView view;
-    QGraphicsTextItem* gameOverText;
-    QMediaPlayer* moveSound;
-    QMediaPlayer* kingingSound;
-    QMediaPlayer* gameOverSound;
-    bool gameOverSoundPlayed;
+    QGraphicsTextItem gameOverText;
+    QMediaPlayer moveSound;
+    QMediaPlayer kingingSound;
+    QMediaPlayer gameOverSound;
     bool startedFirstGame;
-    CheckersAI* ai;
-    QPixmap* pieceSprites;
-    CheckersLogic* checkersLogic;
+    bool gameOver;
+    CheckersAI ai;
+    QPixmap pieceSprites;
+    CheckersLogic checkersLogic;
 };
 #endif // CHECKERS_H

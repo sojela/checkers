@@ -11,7 +11,7 @@ void CheckersView::resizeEvent(QResizeEvent* event) {
         scene()->setSceneRect(0, 0, event->size().width(), event->size().height());
 
         if(MainWindow)
-            MainWindow->update();
+            MainWindow->resize();
     }
 
     QGraphicsView::resizeEvent(event);

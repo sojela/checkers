@@ -3,9 +3,7 @@
 
 #include <QDialog>
 
-namespace Ui {
-class gameOptions;
-}
+namespace Ui { class gameOptions; }
 
 class GameOptions : public QDialog
 {
