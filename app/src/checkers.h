@@ -1,6 +1,7 @@
 #ifndef CHECKERS_H
 #define CHECKERS_H
 
+#include "checkerspiece.h"
 #include "checkersview.h"
 #include "checkersai.h"
 #include "checkerslogic.h"

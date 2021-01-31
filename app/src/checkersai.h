@@ -1,13 +1,8 @@
 #ifndef CHECKERSAI_H
 #define CHECKERSAI_H
 
-#include "checkerspiece.h"
 #include "checkerssquare.h"
 #include "checkerslogic.h"
-
-#include <QVector>
-#include <utility>
-#include <vector>
 
 struct Move {
     Coords start;
@@ -16,10 +11,14 @@ struct Move {
 
 class CheckersAI {
 public:
+    CheckersAI();
+    ~CheckersAI();
+
     Move calculateMoveVeryEasy(const CheckersLogic& currentGameState);
+
 private:
-    std::vector<Coords> calculateAllMovesForPiece(const Coords& piece);
-    int randomNumber(unsigned int max);
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
 
 #endif // CHECKERSAI_H

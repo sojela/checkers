@@ -6,6 +6,11 @@
 
 extern Checkers* MainWindow;
 
+struct CheckersAI::Impl {
+    std::vector<Coords> calculateAllMovesForPiece(const Coords& piece);
+    int randomNumber(unsigned int max);
+};
+
 // chooses move randomly
 Move CheckersAI::calculateMoveVeryEasy(const CheckersLogic& currentGameState) {
     // choose a piece to move
@@ -20,12 +25,12 @@ Move CheckersAI::calculateMoveVeryEasy(const CheckersLogic& currentGameState) {
                 if(currentGameState.isMoveable({i, j}))
                     moveablePieces.push_back({i, j});
 
-        pieceToMove = moveablePieces[randomNumber(moveablePieces.size())];
+        pieceToMove = moveablePieces[pimpl->randomNumber(moveablePieces.size())];
     }
 
 
     // choose a move for the selected piece
-    auto possibleMoves = calculateAllMovesForPiece(pieceToMove);
+    auto possibleMoves = pimpl->calculateAllMovesForPiece(pieceToMove);
 
     std::vector<Coords> availableMovesForChosenPiece;
 
@@ -41,12 +46,12 @@ Move CheckersAI::calculateMoveVeryEasy(const CheckersLogic& currentGameState) {
             availableMovesForChosenPiece.push_back(destination);
     }
 
-    Coords move = availableMovesForChosenPiece[randomNumber(availableMovesForChosenPiece.size())];
+    Coords move = availableMovesForChosenPiece[pimpl->randomNumber(availableMovesForChosenPiece.size())];
 
     return {pieceToMove, move};
 }
 
-std::vector<Coords> CheckersAI::calculateAllMovesForPiece(const Coords& piece) {
+std::vector<Coords> CheckersAI::Impl::calculateAllMovesForPiece(const Coords& piece) {
     std::vector<Coords> result;
     result.reserve(8);
 
@@ -62,7 +67,13 @@ std::vector<Coords> CheckersAI::calculateAllMovesForPiece(const Coords& piece) {
     return result;
 }
 
-int CheckersAI::randomNumber(unsigned int max) {
+int CheckersAI::Impl::randomNumber(unsigned int max) {
     srand(time(NULL));
     return rand() % max;
 }
+
+CheckersAI::CheckersAI() :
+    pimpl(new Impl)
+{}
+
+CheckersAI::~CheckersAI() = default;
