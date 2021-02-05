@@ -40,6 +40,8 @@ void CheckersLogic::resetBoard() {
                     board[i][j] = player2Piece;
                 else if(bottomOfBoard)
                     board[i][j] = player1Piece;
+                else
+                    board[i][j] = empty;
             } else
                 board[i][j] = empty;
         }
