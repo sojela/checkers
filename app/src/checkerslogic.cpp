@@ -2,16 +2,51 @@
 
 #include <cstdlib>
 
+struct CheckersLogic::Impl {
+    Impl();
+    void removeCapturedPiece(const Coords& start, const Coords& end);
+    bool canMoveWithoutCapture(const Coords& pos) const;
+    bool canCaptureForwards(const Coords& start, const Coords& destination) const;
+    bool canCaptureBackwards(const Coords& start, const Coords& destination) const;
+    bool canMoveForwardsWithoutCapture(const Coords& start, const Coords& destination) const;
+    bool canMoveBackwardWithoutCapture(const Coords& start, const Coords& destination) const;
+    bool canMove(const Coords& pos, unsigned int step) const;
+    void endTurn();
+    void kinging(const Coords& pos);
+    bool isValidMove(const Coords& start, const Coords& destination) const;
+    bool isCurrentPlayersPiece(const Coords& pos) const;
+    GameState getGameState() const;
+    bool isMoveable(const Coords& piecePos) const;
+    bool canCapture(const Coords& pos) const;
+
+    Coords captured;
+    std::vector<std::vector<int>> board;
+    Coords selectedPiece;
+    bool pieceSelected;
+    bool player1Turn;
+    bool hasCapturedThisTurn;
+    GameState currentGameState;
+};
+
 CheckersLogic::CheckersLogic()
-        : number_of_squares_in_board(8)
+    : pimpl(new Impl)
 {
     // set board dimensions
-    board.resize(number_of_squares_in_board);
+    pimpl->board.resize(number_of_squares_in_board);
     for(int i = 0; i < number_of_squares_in_board; ++i)
-        board[i].resize(number_of_squares_in_board);
+        pimpl->board[i].resize(number_of_squares_in_board);
 }
 
-void CheckersLogic::removeCapturedPiece(const Coords& start, const Coords& end) {
+CheckersLogic::~CheckersLogic() = default;
+
+CheckersLogic::Impl::Impl()
+    : pieceSelected(false),
+      player1Turn(true),
+      hasCapturedThisTurn(false),
+      currentGameState(current)
+{}
+
+void CheckersLogic::Impl::removeCapturedPiece(const Coords& start, const Coords& end) {
     Coords captured;
 
     if(end.x > start.x)
@@ -37,31 +72,32 @@ void CheckersLogic::resetBoard() {
                 bool bottomOfBoard = j > number_of_squares_in_board - 4;
 
                 if(topOfBoard)
-                    board[i][j] = player2Piece;
+                    pimpl->board[i][j] = player2Piece;
                 else if(bottomOfBoard)
-                    board[i][j] = player1Piece;
+                    pimpl->board[i][j] = player1Piece;
                 else
-                    board[i][j] = empty;
+                    pimpl->board[i][j] = empty;
             } else
-                board[i][j] = empty;
+                pimpl->board[i][j] = empty;
         }
     }
 
-    pieceSelected = false;
-    player1Turn = true;
-    hasCapturedThisTurn = false;
+    pimpl->pieceSelected = false;
+    pimpl->player1Turn = true;
+    pimpl->hasCapturedThisTurn = false;
+    pimpl->currentGameState = current;
 }
 
 bool CheckersLogic::selectPiece(const Coords& pos) {
-    if(isMoveable(pos)) {
-        selectedPiece = pos;
-        pieceSelected = true;
+    if(pimpl->isMoveable(pos)) {
+        pimpl->selectedPiece = pos;
+        pimpl->pieceSelected = true;
         return true;
     } else
         return false;
 }
 
-void CheckersLogic::endTurn() {
+void CheckersLogic::Impl::endTurn() {
     hasCapturedThisTurn = false;
     pieceSelected = false;
 
@@ -69,10 +105,12 @@ void CheckersLogic::endTurn() {
         player1Turn = false;
     else
         player1Turn = true;
+
+    currentGameState = getGameState();
 }
 
 // assume valid coordinates
-bool CheckersLogic::isValidMove(const Coords& start, const Coords& destination) const {
+bool CheckersLogic::Impl::isValidMove(const Coords& start, const Coords& destination) const {
     if(board[start.x][start.y] == empty)
         return false;
 
@@ -91,15 +129,15 @@ bool CheckersLogic::isValidMove(const Coords& start, const Coords& destination) 
     return false;
 }
 
-bool CheckersLogic::canCapture(const Coords& pos) const {
+bool CheckersLogic::Impl::canCapture(const Coords& pos) const {
     return canMove(pos, 2);
 }
 
-bool CheckersLogic::canMoveWithoutCapture(const Coords& pos) const {
+bool CheckersLogic::Impl::canMoveWithoutCapture(const Coords& pos) const {
     return canMove(pos, 1);
 }
 
-bool CheckersLogic::canMove(const Coords &pos, unsigned int step) const {
+bool CheckersLogic::Impl::canMove(const Coords &pos, unsigned int step) const {
     auto upLeft = movePos(pos, upLeftPos, step);
     if(upLeft.x >= 0 && upLeft.y >= 0)
         if(isValidMove(pos, upLeft)) return true;
@@ -119,7 +157,7 @@ bool CheckersLogic::canMove(const Coords &pos, unsigned int step) const {
     return false;
 }
 
-bool CheckersLogic::isMoveable(const Coords& piecePos) const {
+bool CheckersLogic::Impl::isMoveable(const Coords& piecePos) const {
     if(canCapture(piecePos))
         return true;
 
@@ -129,7 +167,7 @@ bool CheckersLogic::isMoveable(const Coords& piecePos) const {
     return false;
 }
 
-bool CheckersLogic::canCaptureForwards(const Coords& start, const Coords& destination) const {
+bool CheckersLogic::Impl::canCaptureForwards(const Coords& start, const Coords& destination) const {
     if(player1Turn) {
         if(start.y - destination.y == 2 && abs(destination.x - start.x) == 2) {
             Coords enemyPos;
@@ -163,7 +201,7 @@ bool CheckersLogic::canCaptureForwards(const Coords& start, const Coords& destin
     return false;
 }
 
-bool CheckersLogic::canCaptureBackwards(const Coords& start, const Coords& destination) const {
+bool CheckersLogic::Impl::canCaptureBackwards(const Coords& start, const Coords& destination) const {
     if(player1Turn) {
         if(board[start.x][start.y] == player1KingPiece) {
             if(destination.y - start.y == 2 && abs(destination.x - start.x) == 2) {
@@ -202,7 +240,7 @@ bool CheckersLogic::canCaptureBackwards(const Coords& start, const Coords& desti
 }
 
 // assume there is a piece at pos
-bool CheckersLogic::isCurrentPlayersPiece(const Coords& pos) const {
+bool CheckersLogic::Impl::isCurrentPlayersPiece(const Coords& pos) const {
     if(board[pos.x][pos.y] == player1Piece
     || board[pos.x][pos.y] == player1KingPiece) {
         if(player1Turn)
@@ -217,28 +255,32 @@ bool CheckersLogic::isCurrentPlayersPiece(const Coords& pos) const {
     }
 }
 
+GameState CheckersLogic::getGameState() const {
+    return pimpl->currentGameState;
+}
+
 void CheckersLogic::movePiece(const Coords& destination) {
-    if(!pieceSelected) return;
+    if(!pimpl->pieceSelected || pimpl->currentGameState != current) return;
 
-    if(isValidMove(selectedPiece, destination)) {
-        board[destination.x][destination.y] = board[selectedPiece.x][selectedPiece.y];
-        board[selectedPiece.x][selectedPiece.y] = empty;
+    if(pimpl->isValidMove(pimpl->selectedPiece, destination)) {
+        pimpl->board[destination.x][destination.y] = pimpl->board[pimpl->selectedPiece.x][pimpl->selectedPiece.y];
+        pimpl->board[pimpl->selectedPiece.x][pimpl->selectedPiece.y] = empty;
 
-        if(abs(destination.x - selectedPiece.x) == 2) {
-            removeCapturedPiece(selectedPiece, destination);
-            hasCapturedThisTurn = true;
+        if(abs(destination.x - pimpl->selectedPiece.x) == 2) {
+            pimpl->removeCapturedPiece(pimpl->selectedPiece, destination);
+            pimpl->hasCapturedThisTurn = true;
         }
 
-        if(hasCapturedThisTurn && canCapture(destination))
-            selectedPiece = destination;
+        if(pimpl->hasCapturedThisTurn && pimpl->canCapture(destination))
+            pimpl->selectedPiece = destination;
         else {
-            kinging(destination);
-            endTurn();
+            pimpl->kinging(destination);
+            pimpl->endTurn();
         }
     }
 }
 
-GameState CheckersLogic::getGameState() const {
+GameState CheckersLogic::Impl::getGameState() const {
     int countPlayer1Pieces = 0;
     int countPlayer2Pieces = 0;
     int countPlayer1MoveablePieces = 0;
@@ -275,7 +317,7 @@ GameState CheckersLogic::getGameState() const {
     return current;
 }
 
-bool CheckersLogic::canMoveForwardsWithoutCapture(const Coords& start, const Coords& destination) const {
+bool CheckersLogic::Impl::canMoveForwardsWithoutCapture(const Coords& start, const Coords& destination) const {
     if(hasCapturedThisTurn)
         return false;
 
@@ -288,7 +330,7 @@ bool CheckersLogic::canMoveForwardsWithoutCapture(const Coords& start, const Coo
     return false;
 }
 
-bool CheckersLogic::canMoveBackwardWithoutCapture(const Coords& start, const Coords& destination) const {
+bool CheckersLogic::Impl::canMoveBackwardWithoutCapture(const Coords& start, const Coords& destination) const {
     if(hasCapturedThisTurn)
         return false;
 
@@ -307,7 +349,7 @@ bool CheckersLogic::canMoveBackwardWithoutCapture(const Coords& start, const Coo
     return false;
 }
 
-void CheckersLogic::kinging(const Coords& pos) {
+void CheckersLogic::Impl::kinging(const Coords& pos) {
     if(pos.y == 0 && board[pos.x][pos.y] == player1Piece)
         board[pos.x][pos.y] = player1KingPiece;
     else if(pos.y == number_of_squares_in_board - 1 && board[pos.x][pos.y] == player2Piece)
@@ -335,4 +377,32 @@ Coords CheckersLogic::movePos(const Coords& start, const Direction& direction, i
         default:
             return {0,0};
     }
+}
+
+const std::vector<std::vector<int>>& CheckersLogic::getBoard() const {
+    return pimpl->board;
+}
+
+const Coords& CheckersLogic::getSelectedPiece() const {
+    return pimpl->selectedPiece;
+}
+
+bool CheckersLogic::isPieceSelected() const {
+    return pimpl->pieceSelected;
+}
+
+bool CheckersLogic::hasCapturedThisTurn() const {
+    return pimpl->hasCapturedThisTurn;
+}
+
+bool CheckersLogic::isValidMove(const Coords& start, const Coords& destination) const {
+    return pimpl->isValidMove(start, destination);
+}
+
+bool CheckersLogic::isPlayer1Turn() const {
+    return pimpl->player1Turn;
+}
+
+bool CheckersLogic::isMoveable(const Coords& piecePos) const {
+    return pimpl->isMoveable(piecePos);
 }

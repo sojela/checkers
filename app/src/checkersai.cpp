@@ -17,8 +17,8 @@ Move CheckersAI::calculateMoveVeryEasy(const CheckersLogic& currentGameState) {
     Coords pieceToMove;
     std::vector<Coords> moveablePieces;
 
-    if(currentGameState.hasCapturedThisTurn)
-        pieceToMove = currentGameState.selectedPiece;
+    if(currentGameState.hasCapturedThisTurn())
+        pieceToMove = currentGameState.getSelectedPiece();
     else {
         for(int i = 0; i < MainWindow->number_of_squares_in_board; ++i)
             for(int j = 0; j < MainWindow->number_of_squares_in_board; ++j)

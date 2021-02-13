@@ -106,10 +106,10 @@ void Checkers::update() {
             auto& currentSquare = board[i][j].square;
 
             auto currentSquareCentre = currentSquare->boundingRect().center();
-            auto selectedPieceCentre = board[checkersLogic.selectedPiece.x][checkersLogic.selectedPiece.y].square->boundingRect().center();
+            auto selectedPieceCentre = board[checkersLogic.getSelectedPiece().x][checkersLogic.getSelectedPiece().y].square->boundingRect().center();
             bool currentSquareSelected = currentSquareCentre == selectedPieceCentre;
 
-            if(checkersLogic.pieceSelected && currentSquareSelected)
+            if(checkersLogic.isPieceSelected() && currentSquareSelected)
                 currentSquare->setBrush(dark_square_highlight);
             else if(currentSquare->brush() == dark_square_highlight)
                 currentSquare->setBrush(dark_square);
@@ -262,7 +262,7 @@ void Checkers::player2AI() {
         selectPiece(board[move.start.x][move.start.y].piece->pos());
         movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
 
-        while(checkersLogic.hasCapturedThisTurn) {
+        while(checkersLogic.hasCapturedThisTurn()) {
             move = ai.calculateMoveVeryEasy(checkersLogic);
             movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
         }
@@ -270,7 +270,7 @@ void Checkers::player2AI() {
 }
 
 void Checkers::kinging(Coords pos) {
-    if(checkersLogic.board[pos.x][pos.y] == player1KingPiece) {
+    if(checkersLogic.getBoard()[pos.x][pos.y] == player1KingPiece) {
         board[pos.x][pos.y].piece->typeOfPiece = player1KingPiece;
         QRect player1KingPieceSpriteRegion {32, 0, 32, 32};
         QPixmap player1KingPieceSprite = pieceSprites.copy(player1KingPieceSpriteRegion);
@@ -305,9 +305,9 @@ void Checkers::resetBoard() {
     for(int i = 0; i < number_of_squares_in_board; ++i) {
         for(int j = 0; j < number_of_squares_in_board; ++j) {
             auto& currentPiece = board[i][j].piece;
-            if(checkersLogic.board[i][j] != empty) {
+            if(checkersLogic.getBoard()[i][j] != empty) {
                 currentPiece = std::shared_ptr<CheckersPiece> (new CheckersPiece);
-                currentPiece->typeOfPiece = checkersLogic.board[i][j];
+                currentPiece->typeOfPiece = checkersLogic.getBoard()[i][j];
 
                 scene.addItem(currentPiece.get());
                 currentPiece->setTransformationMode(Qt::SmoothTransformation);
@@ -328,10 +328,10 @@ void Checkers::resetBoard() {
 }
 
 void Checkers::movePiece(const QPointF& center) {
-    if(!checkersLogic.pieceSelected) return;
+    if(!checkersLogic.isPieceSelected()) return;
 
     auto destination = findSquare(center);
-    auto selectedPiece = checkersLogic.selectedPiece;
+    auto selectedPiece = checkersLogic.getSelectedPiece();
 
     if(checkersLogic.isValidMove(selectedPiece, destination)) {
         checkersLogic.movePiece(destination);
@@ -339,7 +339,7 @@ void Checkers::movePiece(const QPointF& center) {
         board[selectedPiece.x][selectedPiece.y].piece = nullptr;
 
         if(board[destination.x][destination.y].piece->typeOfPiece !=
-                checkersLogic.board[destination.x][destination.y])
+                checkersLogic.getBoard()[destination.x][destination.y])
             kinging(destination);
 
         if(abs(destination.x - selectedPiece.x) == 2)
@@ -349,7 +349,7 @@ void Checkers::movePiece(const QPointF& center) {
 
         update();
 
-        if(!checkersLogic.player1Turn && typeOfGame == PvAI) {
+        if(!checkersLogic.isPlayer1Turn() && typeOfGame == PvAI) {
             player2AI();
             update();
         }
