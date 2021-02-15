@@ -37,6 +37,16 @@ CheckersLogic::CheckersLogic()
         pimpl->board[i].resize(number_of_squares_in_board);
 }
 
+CheckersLogic::CheckersLogic(const CheckersLogic& state) : CheckersLogic::CheckersLogic() {
+    pimpl->board = state.getBoard();
+    pimpl->pieceSelected = state.pimpl->pieceSelected;
+    pimpl->player1Turn = state.pimpl->player1Turn;
+    pimpl->hasCapturedThisTurn = state.pimpl->hasCapturedThisTurn;
+    pimpl->currentGameState = state.pimpl->currentGameState;
+    pimpl->selectedPiece = state.pimpl->selectedPiece;
+    pimpl->captured = state.pimpl->captured;
+}
+
 CheckersLogic::~CheckersLogic() = default;
 
 CheckersLogic::Impl::Impl()

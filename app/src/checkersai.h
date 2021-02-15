@@ -14,7 +14,8 @@ public:
     CheckersAI();
     ~CheckersAI();
 
-    Move calculateMoveVeryEasy(const CheckersLogic& currentGameState);
+    Move calculateMoveVeryEasy(const CheckersLogic& state) const;
+    Move calculateMoveEasy(const CheckersLogic& state) const;
 
 private:
     struct Impl;

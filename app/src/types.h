@@ -27,6 +27,6 @@ enum PieceType {empty, player1Piece, player2Piece, player1KingPiece, player2King
 enum GameState {current, player1Wins, player2Wins};
 enum Direction {upLeftPos, upPos, upRightPos, leftPos, rightPos, downLeftPos, downPos, downRightPos};
 enum TypeOfGame {localPvP, PvAI};
-enum Difficulty {veryEasy};
+enum Difficulty {veryEasy, easy};
 
 #endif // TYPES_H

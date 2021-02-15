@@ -266,6 +266,15 @@ void Checkers::player2AI() {
             move = ai.calculateMoveVeryEasy(checkersLogic);
             movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
         }
+    } else if(difficulty == easy) {
+        move = ai.calculateMoveEasy(checkersLogic);
+        selectPiece(board[move.start.x][move.start.y].piece->pos());
+        movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
+
+        while(checkersLogic.hasCapturedThisTurn()) {
+            move = ai.calculateMoveEasy(checkersLogic);
+            movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
+        }
     }
 }
 

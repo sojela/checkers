@@ -10,6 +10,7 @@ class CheckersLogic {
 public:
     CheckersLogic();
     ~CheckersLogic();
+    CheckersLogic(const CheckersLogic& state);
     void movePiece(const Coords& destination);
     GameState getGameState() const;
     void resetBoard();

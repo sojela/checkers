@@ -8,6 +8,7 @@ GameOptions::GameOptions(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::gameOptions)
     , veryEasyDifficulty("Very easy")
+    , easyDifficulty("Easy")
     , localTwoPlayer("Local 2 player")
     , playervAI("Play against computer")
 {
@@ -32,6 +33,7 @@ GameOptions::GameOptions(QWidget *parent)
     ui->gameType->addItem(localTwoPlayer);
 
     ui->difficulty->addItem(veryEasyDifficulty);
+    ui->difficulty->addItem(easyDifficulty);
 }
 
 GameOptions::~GameOptions() { delete ui; }
@@ -43,8 +45,6 @@ void GameOptions::on_start_clicked() {
     else
         MainWindow->typeOfGame = PvAI;
 
-    MainWindow->difficulty = veryEasy;
-
     MainWindow->resetBoard();
 
     this->close();
@@ -55,4 +55,11 @@ void GameOptions::on_gameType_currentIndexChanged(const QString& arg1) {
         ui->difficulty->hide();
     else
         ui->difficulty->show();
+}
+
+void GameOptions::on_difficulty_currentIndexChanged(const QString& arg1) {
+    if(arg1 == veryEasyDifficulty)
+        MainWindow->difficulty = veryEasy;
+    else if(arg1 == easyDifficulty)
+        MainWindow->difficulty = easy;
 }
