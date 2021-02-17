@@ -10,11 +10,17 @@ extern Checkers* MainWindow;
 struct CheckersAI::Impl {
     enum {win = INT_MAX, lose = INT_MIN};
 
+    struct Pieces {
+        unsigned int p1Reg = 0;
+        unsigned int p2Reg = 0;
+        unsigned int p1King = 0;
+        unsigned int p2King = 0;
+    };
+
     std::vector<Coords> calculateAllValidMovesForPiece(const CheckersLogic& state, const Coords& piece);
     int randomNumber(unsigned int max);
     int stateEvaluator(const CheckersLogic& state);
-    int numberOfPlayer1Pieces(const CheckersLogic& state);
-    int numberOfPlayer2Pieces(const CheckersLogic& state);
+    Pieces numberOfEachPlayerPieces(const CheckersLogic& state);
     Move calculateBestMove(const CheckersLogic& state, unsigned int movesLookAhead);
     std::vector<Coords> moveablePieces(const CheckersLogic& state);
     void doMoveSequence(CheckersLogic& state, std::vector<Move> moveSequence);
@@ -106,7 +112,7 @@ CheckersAI::CheckersAI() :
 
 CheckersAI::~CheckersAI() = default;
 
-// Higher is better
+// Higher is better for player 2
 int CheckersAI::Impl::stateEvaluator(const CheckersLogic& state) {
     auto gameState = state.getGameState();
 
@@ -114,30 +120,40 @@ int CheckersAI::Impl::stateEvaluator(const CheckersLogic& state) {
         return win;
     else if(gameState == player1Wins)
         return lose;
-    else
-        return numberOfPlayer2Pieces(state) - numberOfPlayer1Pieces(state);
+
+    auto numOfPieces = numberOfEachPlayerPieces(state);
+
+    const int kingValue = 2;
+    int value = numOfPieces.p2Reg - numOfPieces.p1Reg - (kingValue * numOfPieces.p1King) + (kingValue * numOfPieces.p2King);
+
+    return value;
 }
 
-int CheckersAI::Impl::numberOfPlayer1Pieces(const CheckersLogic& state) {
-    int numberOfPlayer1Pieces = 0;
+CheckersAI::Impl::Pieces CheckersAI::Impl::numberOfEachPlayerPieces(const CheckersLogic &state) {
+    Pieces count;
 
-    for(auto& row : state.getBoard())
-        for(int s : row)
-            if(s == player1Piece || s == player1KingPiece)
-                ++numberOfPlayer1Pieces;
+    for(auto& row : state.getBoard()) {
+        for(int s : row) {
+            if(s == empty)
+                continue;
 
-    return numberOfPlayer1Pieces;
-}
+            switch (s) {
+                case player1Piece:
+                    ++count.p1Reg;
+                    break;
+                case player2Piece:
+                    ++count.p2Reg;
+                    break;
+                case player1KingPiece:
+                    ++count.p1King;
+                    break;
+                default:
+                    ++count.p2King;
+            }
+        }
+    }
 
-int CheckersAI::Impl::numberOfPlayer2Pieces(const CheckersLogic& state) {
-    int numberOfPlayer2Pieces = 0;
-
-    for(auto& row : state.getBoard())
-        for(int s : row)
-            if(s == player2Piece || s == player2KingPiece)
-                ++numberOfPlayer2Pieces;
-
-    return numberOfPlayer2Pieces;
+    return count;
 }
 
 // Assumes valid move exists
