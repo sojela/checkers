@@ -72,7 +72,7 @@ private:
     QMediaPlayer gameOverSound;
     bool startedFirstGame;
     bool gameOver;
-    CheckersAI ai;
+    std::unique_ptr<CheckersAI> ai;
     QPixmap pieceSprites;
     CheckersLogic checkersLogic;
 };

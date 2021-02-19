@@ -25,7 +25,7 @@ struct Coords {
 
 enum PieceType {empty, player1Piece, player2Piece, player1KingPiece, player2KingPiece};
 enum GameState {current, player1Wins, player2Wins};
-enum Direction {upLeftPos, upPos, upRightPos, leftPos, rightPos, downLeftPos, downPos, downRightPos};
+enum Direction {upLeftPos, upRightPos, downLeftPos, downRightPos};
 enum TypeOfGame {localPvP, PvAI};
 enum Difficulty {veryEasy, easy};
 

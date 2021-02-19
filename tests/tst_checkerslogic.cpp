@@ -47,12 +47,8 @@ void CheckersLogicTests::moveTest() {
     Coords p1Piece = {2, 5};
 
     QVERIFY(c.isValidMove(p1Piece, c.movePos(p1Piece, upLeftPos)));
-    QVERIFY(! c.isValidMove(p1Piece, c.movePos(p1Piece, upPos)));
     QVERIFY(c.isValidMove(p1Piece, c.movePos(p1Piece, upRightPos)));
-    QVERIFY(! c.isValidMove(p1Piece, c.movePos(p1Piece, leftPos)));
-    QVERIFY(! c.isValidMove(p1Piece, c.movePos(p1Piece, rightPos)));
     QVERIFY(! c.isValidMove(p1Piece, c.movePos(p1Piece, downLeftPos)));
-    QVERIFY(! c.isValidMove(p1Piece, c.movePos(p1Piece, downPos)));
     QVERIFY(! c.isValidMove(p1Piece, c.movePos(p1Piece, downRightPos)));
 
 
@@ -64,12 +60,8 @@ void CheckersLogicTests::moveTest() {
     Coords p2Piece = {3, 2};
 
     QVERIFY(! c.isValidMove(p2Piece, c.movePos(p2Piece, upLeftPos)));
-    QVERIFY(! c.isValidMove(p2Piece, c.movePos(p2Piece, upPos)));
     QVERIFY(! c.isValidMove(p2Piece, c.movePos(p2Piece, upRightPos)));
-    QVERIFY(! c.isValidMove(p2Piece, c.movePos(p2Piece, leftPos)));
-    QVERIFY(! c.isValidMove(p2Piece, c.movePos(p2Piece, rightPos)));
     QVERIFY(c.isValidMove(p2Piece, c.movePos(p2Piece, downLeftPos)));
-    QVERIFY(! c.isValidMove(p2Piece, c.movePos(p2Piece, downPos)));
     QVERIFY(c.isValidMove(p2Piece, c.movePos(p2Piece, downRightPos)));
 }
 
