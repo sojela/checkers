@@ -173,7 +173,10 @@ Move CheckersAI::Impl::calculateBestMove(const CheckersLogic& state, unsigned in
 
     minimaxRoot(state, root, movesLookAhead * 2);
 
-    return bestMove(root);
+    if(movesLookAhead > 1 && root->stateValue == lose)
+        return calculateBestMove(state, 1);
+    else
+        return bestMove(root);
 }
 
 std::vector<Coords> CheckersAI::Impl::moveablePieces(const CheckersLogic& state) const {
