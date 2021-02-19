@@ -22,6 +22,7 @@ private:
     Ui::gameOptions *ui;
     QString veryEasyDifficulty;
     QString easyDifficulty;
+    QString normalDifficulty;
     QString localTwoPlayer;
     QString playervAI;
 };

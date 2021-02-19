@@ -16,6 +16,7 @@ public:
 
     Move calculateMoveVeryEasy(const CheckersLogic& state) const;
     Move calculateMoveEasy(const CheckersLogic& state) const;
+    Move calculateMoveNormal(const CheckersLogic& state) const;
 
 private:
     struct Impl;

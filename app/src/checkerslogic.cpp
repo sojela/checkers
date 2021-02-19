@@ -404,7 +404,7 @@ Coords CheckersLogic::movePos(const Coords& start, const Direction& direction, i
     }
 }
 
-const std::array<std::array<int, 8>, 8>& CheckersLogic::getBoard() const {
+const std::array<std::array<int, CheckersLogic::number_of_squares_in_board>, CheckersLogic::number_of_squares_in_board>& CheckersLogic::getBoard() const {
     return pimpl->board;
 }
 

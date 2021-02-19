@@ -26,7 +26,6 @@ Checkers::Checkers(QWidget *parent)
     , pieceSizeFraction(0.9)
     , startedFirstGame(false)
     , gameOver(false)
-    , ai(new CheckersAI)
     , pieceSprites(":/images/checkers.png")
 {
     scene.setBackgroundBrush(background_colour);
@@ -259,21 +258,30 @@ void Checkers::player2AI() {
     Move move;
 
     if(difficulty == veryEasy) {
-        move = ai->calculateMoveVeryEasy(checkersLogic);
+        move = ai.calculateMoveVeryEasy(checkersLogic);
         selectPiece(board[move.start.x][move.start.y].piece->pos());
         movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
 
         while(checkersLogic.hasCapturedThisTurn()) {
-            move = ai->calculateMoveVeryEasy(checkersLogic);
+            move = ai.calculateMoveVeryEasy(checkersLogic);
             movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
         }
     } else if(difficulty == easy) {
-        move = ai->calculateMoveEasy(checkersLogic);
+        move = ai.calculateMoveEasy(checkersLogic);
         selectPiece(board[move.start.x][move.start.y].piece->pos());
         movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
 
         while(checkersLogic.hasCapturedThisTurn()) {
-            move = ai->calculateMoveEasy(checkersLogic);
+            move = ai.calculateMoveEasy(checkersLogic);
+            movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
+        }
+    } else if(difficulty == normal) {
+        move = ai.calculateMoveNormal(checkersLogic);
+        selectPiece(board[move.start.x][move.start.y].piece->pos());
+        movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
+
+        while(checkersLogic.hasCapturedThisTurn()) {
+            move = ai.calculateMoveNormal(checkersLogic);
             movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
         }
     }
@@ -305,8 +313,6 @@ void Checkers::resetBoard() {
     if(!startedFirstGame) init();
 
     checkersLogic.resetBoard();
-
-    ai.reset(new CheckersAI);
 
     QRect player1SpriteRect {96, 0, 32, 32};
     QPixmap player1Sprite = pieceSprites.copy(player1SpriteRect);

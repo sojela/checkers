@@ -9,6 +9,7 @@ GameOptions::GameOptions(QWidget *parent)
     , ui(new Ui::gameOptions)
     , veryEasyDifficulty("Very easy")
     , easyDifficulty("Easy")
+    , normalDifficulty("Normal")
     , localTwoPlayer("Local 2 player")
     , playervAI("Play against computer")
 {
@@ -34,6 +35,7 @@ GameOptions::GameOptions(QWidget *parent)
 
     ui->difficulty->addItem(veryEasyDifficulty);
     ui->difficulty->addItem(easyDifficulty);
+    ui->difficulty->addItem(normalDifficulty);
 }
 
 GameOptions::~GameOptions() { delete ui; }
@@ -62,4 +64,6 @@ void GameOptions::on_difficulty_currentIndexChanged(const QString& arg1) {
         MainWindow->difficulty = veryEasy;
     else if(arg1 == easyDifficulty)
         MainWindow->difficulty = easy;
+    else if(arg1 == normalDifficulty)
+        MainWindow->difficulty = normal;
 }

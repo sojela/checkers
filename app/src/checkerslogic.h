@@ -7,7 +7,7 @@
 
 class CheckersLogic {
 public:
-    static constexpr int number_of_squares_in_board = 8;
+    static const int number_of_squares_in_board = 8;
 
     CheckersLogic();
     ~CheckersLogic();

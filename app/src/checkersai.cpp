@@ -67,7 +67,11 @@ Move CheckersAI::calculateMoveVeryEasy(const CheckersLogic& state) const {
 }
 
 Move CheckersAI::calculateMoveEasy(const CheckersLogic& state) const {
-    return pimpl->calculateBestMove(state, 3);
+    return pimpl->calculateBestMove(state, 1);
+}
+
+Move CheckersAI::calculateMoveNormal(const CheckersLogic &state) const {
+    return pimpl->calculateBestMove(state, 2);
 }
 
 std::vector<Coords> CheckersAI::Impl::calculateAllValidMovesForPiece(const CheckersLogic& state, const Coords& piece) const {
@@ -169,12 +173,6 @@ Move CheckersAI::Impl::calculateBestMove(const CheckersLogic& state, unsigned in
 
     minimaxRoot(state, root, movesLookAhead * 2);
 
-//    auto itr = std::max_element(root->children.begin(), root->children.end(),
-//             [&] (const std::shared_ptr<Node>& lhs, const std::shared_ptr<Node>& rhs)
-//    { return lhs->stateValue < rhs->stateValue; });
-
-//    currentValue = itr->get()->stateValue;
-
     return bestMove(root);
 }
 
@@ -238,12 +236,10 @@ int CheckersAI::Impl::minimax(const CheckersLogic& initialState, const std::shar
 
         for(auto& piece : pieces) {
             auto moves = calculateAllValidMovesForPiece(doMoveSequence(initialState, node), piece);
-
             for(auto& move : moves) {
                 std::shared_ptr<CheckersAI::Impl::Node> child {new Node({piece, move}, node)};
 
                 int childValue = minimax(initialState, child, depth - 1, min, value);
-
                 if(childValue < value) value = childValue;
 
                 if(value < min) return min;
@@ -275,7 +271,7 @@ int CheckersAI::Impl::minimax(const CheckersLogic& initialState, const std::shar
 void CheckersAI::Impl::minimaxRoot(const CheckersLogic& initialState, const std::shared_ptr<CheckersAI::Impl::Node>& root, unsigned int depth) {
     calculateMovesForNode(initialState, root);
 
-    int value = currentValue;
+    int value = lose;
 
     for(auto& child : root->children) {
         child->stateValue = minimax(initialState, child, depth - 1, value, win);
