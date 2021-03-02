@@ -4,6 +4,7 @@
 
 #include <QMessageBox>
 #include <QFile>
+#include <QtConcurrent/QtConcurrentRun>
 
 Checkers::Checkers(QWidget *parent)
     : QMainWindow(parent)
@@ -59,7 +60,14 @@ Checkers::Checkers(QWidget *parent)
 
     connect(newGame, &QAction::triggered, this, &Checkers::startNewGame);
     connect(credits, &QAction::triggered, this, &Checkers::displayCredits);
-    connect(quit, &QAction::triggered, this, QApplication::quit);
+    connect(quit, &QAction::triggered, this, &Checkers::quit);
+
+    connect(&watcher, SIGNAL(finished()), this, SLOT(aiFinished()));
+}
+
+void Checkers::quit() {
+    // This is necessary since the AI prevents the program from closing
+    exit(0);
 }
 
 void Checkers::resize() {
@@ -255,36 +263,16 @@ void Checkers::displayCredits() {
 void Checkers::player2AI() {
     if(gameOver) return;
 
-    Move move;
+    QFuture<Move> future;
 
-    if(difficulty == veryEasy) {
-        move = ai.calculateMoveVeryEasy(checkersLogic);
-        selectPiece(board[move.start.x][move.start.y].piece->pos());
-        movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
+    if(difficulty == veryEasy)
+        future = QtConcurrent::run(&ai, &CheckersAI::calculateMoveVeryEasy, checkersLogic);
+    else if(difficulty == easy)
+        future = QtConcurrent::run(&ai, &CheckersAI::calculateMoveEasy, checkersLogic);
+    else if(difficulty == normal)
+        future = QtConcurrent::run(&ai, &CheckersAI::calculateMoveNormal, checkersLogic);
 
-        while(checkersLogic.hasCapturedThisTurn()) {
-            move = ai.calculateMoveVeryEasy(checkersLogic);
-            movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
-        }
-    } else if(difficulty == easy) {
-        move = ai.calculateMoveEasy(checkersLogic);
-        selectPiece(board[move.start.x][move.start.y].piece->pos());
-        movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
-
-        while(checkersLogic.hasCapturedThisTurn()) {
-            move = ai.calculateMoveEasy(checkersLogic);
-            movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
-        }
-    } else if(difficulty == normal) {
-        move = ai.calculateMoveNormal(checkersLogic);
-        selectPiece(board[move.start.x][move.start.y].piece->pos());
-        movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
-
-        while(checkersLogic.hasCapturedThisTurn()) {
-            move = ai.calculateMoveNormal(checkersLogic);
-            movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
-        }
-    }
+    watcher.setFuture(future);
 }
 
 void Checkers::kinging(Coords pos) {
@@ -343,6 +331,18 @@ void Checkers::resetBoard() {
     gameOverText.setDefaultTextColor(background_colour);
 
     resize();
+}
+
+void Checkers::aiFinished() {
+    Move move = watcher.result();
+
+    selectPiece(board[move.start.x][move.start.y].piece->pos());
+    movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
+
+    if(checkersLogic.hasCapturedThisTurn())
+        player2AI();
+    else
+        update();
 }
 
 void Checkers::movePiece(const QPointF& center) {

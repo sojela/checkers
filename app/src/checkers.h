@@ -11,6 +11,7 @@
 #include <QVector>
 #include <QGraphicsScene>
 #include <QMediaPlayer>
+#include <QFutureWatcher>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Checkers; }
@@ -33,6 +34,9 @@ public:
     TypeOfGame typeOfGame;
     Difficulty difficulty;
 
+private slots:
+    void aiFinished();
+
 private:
     Coords findPiece(const QPointF& pos) const;
     Coords findSquare(const QPointF& pos) const;
@@ -43,6 +47,7 @@ private:
     void update();
     void updateGameOverTextSizeAndPos();
     void stopSounds();
+    void quit();
 
     struct BoardSquare {
         std::shared_ptr<CheckersSquare> square;
@@ -75,5 +80,6 @@ private:
     CheckersAI ai;
     QPixmap pieceSprites;
     CheckersLogic checkersLogic;
+    QFutureWatcher<Move> watcher;
 };
 #endif // CHECKERS_H
