@@ -42,11 +42,6 @@ Checkers::Checkers(QWidget *parent)
     view.setWindowTitle("Checkers");
     view.show();
 
-    QString ss{"background-color: #595959;"
-               "color: white;"
-               "selection-background-color: blue;"};
-    menuBar()->setStyleSheet(ss);
-
     QAction *newGame = new QAction("&New game", this);
     QAction *credits = new QAction("&Credits", this);
     QAction *quit = new QAction("&Quit", this);
