@@ -10,8 +10,6 @@ GameOptions::GameOptions(QWidget *parent)
     , veryEasyDifficulty("Very easy")
     , easyDifficulty("Easy")
     , normalDifficulty("Normal")
-    , localTwoPlayer("Local 2 player")
-    , playervAI("Play against computer")
 {
     ui->setupUi(this);
 
@@ -26,12 +24,10 @@ GameOptions::GameOptions(QWidget *parent)
                "color: white;"
                "selection-background-color: blue;");
 
-    ui->gameType->setStyleSheet(ss);
+    ui->ai->setStyleSheet(ss);
+    ui->twoPlayer->setStyleSheet(ss);
     ui->difficulty->setStyleSheet(ss);
     ui->start->setStyleSheet(ss);
-
-    ui->gameType->addItem(playervAI);
-    ui->gameType->addItem(localTwoPlayer);
 
     ui->difficulty->addItem(veryEasyDifficulty);
     ui->difficulty->addItem(easyDifficulty);
@@ -41,7 +37,7 @@ GameOptions::GameOptions(QWidget *parent)
 GameOptions::~GameOptions() { delete ui; }
 
 void GameOptions::on_start_clicked() {
-    bool isPvP = ui->gameType->currentData(0) == localTwoPlayer;
+    bool isPvP = ui->twoPlayer->isChecked();
     if(isPvP)
         MainWindow->typeOfGame = localPvP;
     else
@@ -52,13 +48,6 @@ void GameOptions::on_start_clicked() {
     this->close();
 }
 
-void GameOptions::on_gameType_currentIndexChanged(const QString& arg1) {
-    if(arg1 == localTwoPlayer)
-        ui->difficulty->hide();
-    else
-        ui->difficulty->show();
-}
-
 void GameOptions::on_difficulty_currentIndexChanged(const QString& arg1) {
     if(arg1 == veryEasyDifficulty)
         MainWindow->difficulty = veryEasy;
@@ -66,4 +55,12 @@ void GameOptions::on_difficulty_currentIndexChanged(const QString& arg1) {
         MainWindow->difficulty = easy;
     else if(arg1 == normalDifficulty)
         MainWindow->difficulty = normal;
+}
+
+void GameOptions::on_ai_clicked() {
+    ui->difficulty->show();
+}
+
+void GameOptions::on_twoPlayer_clicked() {
+    ui->difficulty->hide();
 }

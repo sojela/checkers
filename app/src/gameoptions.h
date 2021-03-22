@@ -15,16 +15,15 @@ public:
 
 private slots:
     void on_start_clicked();
-    void on_gameType_currentIndexChanged(const QString& arg1);
     void on_difficulty_currentIndexChanged(const QString &arg1);
+    void on_ai_clicked();
+    void on_twoPlayer_clicked();
 
 private:
     Ui::gameOptions *ui;
     QString veryEasyDifficulty;
     QString easyDifficulty;
     QString normalDifficulty;
-    QString localTwoPlayer;
-    QString playervAI;
 };
 
 #endif // GAMEOPTIONS_H
