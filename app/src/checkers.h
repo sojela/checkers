@@ -12,6 +12,7 @@
 #include <QGraphicsScene>
 #include <QMediaPlayer>
 #include <QFutureWatcher>
+#include <vector>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Checkers; }
@@ -48,10 +49,13 @@ private:
     void updateGameOverTextSizeAndPos();
     void stopSounds();
     void quit();
+    bool isPlayerTwoLastMoveValid();
+    void clearMarks();
 
     struct BoardSquare {
         std::shared_ptr<CheckersSquare> square;
         std::shared_ptr<CheckersPiece> piece;
+        std::shared_ptr<QGraphicsEllipseItem> mark;
     };
 
     QVector<QVector<BoardSquare>> board;
@@ -65,10 +69,13 @@ private:
     const QColor player_2_colour_king;
     const QColor background_colour;
     const QColor visible_text_colour;
+    const QColor mark_colour;
     const qreal square_z_height;
     const qreal piece_z_height;
+    const qreal mark_z_height;
     const double fractionOfWindowToUse;
     const double pieceSizeFraction;
+    const double markSizeFraction;
     QGraphicsScene scene;
     CheckersView view;
     QGraphicsTextItem gameOverText;
@@ -81,5 +88,7 @@ private:
     QPixmap pieceSprites;
     CheckersLogic checkersLogic;
     QFutureWatcher<Move> watcher;
+    const std::vector<Coords> invalid_player_two_last_move;
+    std::vector<Coords> playerTwoLastMove;
 };
 #endif // CHECKERS_H

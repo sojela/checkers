@@ -21,13 +21,18 @@ Checkers::Checkers(QWidget *parent)
     , player_2_colour_king(Qt::darkGray)
     , background_colour(Qt::black)
     , visible_text_colour(Qt::cyan)
+    , mark_colour(Qt::red)
     , square_z_height(0)
     , piece_z_height(1)
+    , mark_z_height(2)
     , fractionOfWindowToUse(0.75)
     , pieceSizeFraction(0.9)
+    , markSizeFraction(0.1)
     , startedFirstGame(false)
     , gameOver(false)
     , pieceSprites(":/images/checkers.png")
+    , invalid_player_two_last_move ({{-1,-1}})
+    , playerTwoLastMove(invalid_player_two_last_move)
 {
     scene.setBackgroundBrush(background_colour);
 
@@ -63,6 +68,21 @@ Checkers::Checkers(QWidget *parent)
 void Checkers::quit() {
     // This is necessary since the AI prevents the program from closing
     exit(0);
+}
+
+bool Checkers::isPlayerTwoLastMoveValid() {
+    if(playerTwoLastMove[0].x == invalid_player_two_last_move[0].x)
+        return false;
+
+    return true;
+}
+
+void Checkers::clearMarks() {
+    if(isPlayerTwoLastMoveValid())
+        for(auto mark : playerTwoLastMove)
+            board[mark.x][mark.y].mark = nullptr;
+
+    playerTwoLastMove = invalid_player_two_last_move;
 }
 
 void Checkers::resize() {
@@ -125,6 +145,22 @@ void Checkers::update() {
 
                 currentPiece->setPos(boundingRect.x(), boundingRect.y());
             }
+        }
+
+    if(isPlayerTwoLastMoveValid())
+        for(auto coord : playerTwoLastMove) {
+            auto& currentMark = board[coord.x][coord.y].mark;
+            auto& currentSquare = board[coord.x][coord.y].square;
+
+            double markDiameter = currentSquare->boundingRect().height() * markSizeFraction;
+            QRectF markBoundingRect {0, 0, markDiameter, markDiameter};
+            markBoundingRect.moveCenter(currentSquare->boundingRect().center());
+
+            currentMark = std::shared_ptr<QGraphicsEllipseItem> (new QGraphicsEllipseItem(markBoundingRect));
+            scene.addItem(currentMark.get());
+            currentMark->setBrush(mark_colour);
+            currentMark->setZValue(mark_z_height);
+            currentMark->setPen(Qt::NoPen);
         }
 
 
@@ -322,6 +358,8 @@ void Checkers::resetBoard() {
         }
     }
 
+    clearMarks();
+
     gameOver = false;
     gameOverText.setDefaultTextColor(background_colour);
 
@@ -330,6 +368,13 @@ void Checkers::resetBoard() {
 
 void Checkers::aiFinished() {
     Move move = watcher.result();
+
+    if(!isPlayerTwoLastMoveValid()) {
+        playerTwoLastMove.clear();
+        playerTwoLastMove.push_back(move.start);
+        playerTwoLastMove.push_back(move.destination);
+    } else
+        playerTwoLastMove.push_back(move.destination);
 
     selectPiece(board[move.start.x][move.start.y].piece->pos());
     movePiece(board[move.destination.x][move.destination.y].square->boundingRect().center());
@@ -363,6 +408,8 @@ void Checkers::movePiece(const QPointF& center) {
         update();
 
         if(!checkersLogic.isPlayer1Turn() && typeOfGame == PvAI) {
+            if(!checkersLogic.hasCapturedThisTurn())
+                clearMarks();
             player2AI();
             update();
         }
